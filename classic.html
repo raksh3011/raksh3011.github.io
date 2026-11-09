@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rakshak M K — Software Engineer (classic view)</title>
+<meta name="description" content="Rakshak M K — CS undergraduate building AI-driven, data-intensive systems: ocean-data RAG, maritime risk platforms and autonomous UAV software.">
+<meta name="theme-color" content="#06090c">
+<meta property="og:title" content="Rakshak M K — Software Engineer">
+<meta property="og:description" content="AI-driven, data-intensive systems — from ocean data to maritime risk to autonomous flight.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2306090c'/%3E%3Cpath d='M7 22c4-9 8-9 11-3s5 3 7-6' fill='none' stroke='%234fd1c5' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#work">Skip to work</a>
+<header class="nav" id="nav"><div class="wrap">
+  <a class="logo" href="#top">Rakshak<i>.</i></a>
+  <nav class="links" aria-label="Primary">
+    <a href="./">Desktop view</a><a href="#work">Work</a><a href="#experience">Experience</a><a href="#recognition">Recognition</a><a href="#skills">Skills</a>
+    <a class="btn keep" href="#contact">Contact</a>
+    <button class="icon-btn" id="theme" aria-label="Toggle light and dark theme">◐</button>
+  </nav>
+</div></header>
+
+<main id="top">
+<section class="hero">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="eyebrow mono"><span class="pulse"></span>Software engineer · B.E. CSE, BMSIT&amp;M · Bengaluru</div>
+    <h1>Reliable systems for <em>data that moves.</em></h1>
+    <p class="lede">I build AI-driven, data-intensive systems — a conversational layer over ocean-float data, a real-time maritime risk platform, and flight-software architecture for autonomous aircraft that can't rely on GPS.</p>
+    <div class="cta">
+      <a class="btn primary" href="#work">See selected work →</a>
+      <a class="btn" href="assets/Rakshak_M_K_Resume.pdf" download>Resume (PDF)</a>
+    </div>
+    <div class="stats">
+      <div><b>3</b><span>Flagship systems</span></div>
+      <div><b>226</b><span>Automated tests in ORVMS</span></div>
+      <div><b>IIT BHU</b><span>ICMOTA 2026 presenter</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="work"><div class="wrap">
+  <div class="sec-h rv"><h2>Selected work</h2><p>Three projects, each runnable or explorable right in the browser.</p></div>
+
+  <article class="proj rv">
+    <div class="viz"><canvas id="v-float" aria-label="Map of 2,712 Argo profile locations over the Indian Ocean"></canvas></div>
+    <div class="body">
+      <div class="tag"><span class="mono">Applied AI · Data engineering</span><span class="live mono"><span class="pulse"></span>Live demo</span></div>
+      <h3>FloatChat — ask the ocean in plain English</h3>
+      <p>Hierarchical Argo NetCDF files become a queryable dataset of temperature and salinity profiles. The demo runs entirely in your browser over real float data: ask a question, get a map, a depth profile and the numbers behind it.</p>
+      <div class="chips"><span class="chip">Python</span><span class="chip">PostgreSQL + pgvector</span><span class="chip">RAG</span><span class="chip">NetCDF</span></div>
+      <div class="facts"><div><b>2,712</b><span>Real profiles in the demo</span></div><div><b>5,000</b><span>Rows per transactional batch</span></div></div>
+      <div class="cta"><a class="btn primary" href="floatchat/">Open live demo →</a><a class="btn" href="https://github.com/raksh3011/FloatChat" target="_blank" rel="noopener">Source</a></div>
+    </div>
+  </article>
+
+  <article class="proj rv">
+    <div class="viz"><canvas id="v-orvms" aria-label="Animated vessels moving along shipping lanes"></canvas></div>
+    <div class="body">
+      <div class="tag"><span class="mono">Full-stack · Serverless</span><span class="live mono"><span class="pulse"></span>Live demo</span></div>
+      <h3>ORVMS — ocean risk &amp; vessel monitoring</h3>
+      <p>A multi-tenant platform linking risk at sea to voyages, customer shipments and delivery commitments — with approval workflows, SLA-driven Coast Guard case desks, billing and signed webhooks. Serverless and free to host.</p>
+      <div class="chips"><span class="chip">TypeScript</span><span class="chip">Cloudflare Workers</span><span class="chip">D1 · Durable Objects</span><span class="chip">WebSockets</span></div>
+      <div class="facts"><div><b>226</b><span>Unit + API tests</span></div><div><b>Multi-tenant</b><span>Isolated organisations</span></div></div>
+      <div class="cta"><a class="btn primary" href="orvms/">Explore the platform →</a><a class="btn" href="https://github.com/raksh3011/MSA" target="_blank" rel="noopener">Source</a></div>
+    </div>
+  </article>
+
+  <article class="proj rv">
+    <div class="viz"><svg id="v-aura" viewBox="0 0 400 340" preserveAspectRatio="xMidYMid slice" aria-label="Flying-wing UAV trajectory through a GPS-denied zone"></svg></div>
+    <div class="body">
+      <div class="tag"><span class="mono">Research · Systems architecture</span><span class="live mono" style="color:var(--accent2)">ICMOTA 2026</span></div>
+      <h3>AURA-X — autonomous UAV without GPS</h3>
+      <p>System architecture for a flying-wing UAV: how mission planning, navigation, sensing and flight control interact — and how trajectory optimisation keeps the mission executable when GPS is denied. Presented at IIT BHU.</p>
+      <div class="chips"><span class="chip">System design</span><span class="chip">Trajectory optimisation</span><span class="chip">Path planning</span><span class="chip">GPS-denied nav</span></div>
+      <div class="cta"><a class="btn primary" href="aura-x/">Read the case study →</a></div>
+    </div>
+  </article>
+</div></section>
+
+<section id="experience"><div class="wrap two">
+  <div class="rv">
+    <div class="mono" style="margin-bottom:14px">Experience</div>
+    <div class="tl">
+      <div><h4>Software Engineer Intern — ApthaAI</h4><div class="m">June 2026 – Present</div>
+        <p>Contributed to the prototype of an Assurance Platform for AI agents in supply-chain workflows, turning assurance requirements into software components and engineering decisions — backend engineering meets applied AI.</p></div>
+      <div><h4>B.E. Computer Science &amp; Engineering</h4><div class="m">BMS Institute of Technology and Management · 2023 – 2027 · CGPA 8.66</div>
+        <p>Focus on systems, databases and applied machine learning.</p></div>
+    </div>
+  </div>
+  <div class="rv" id="recognition">
+    <div class="mono" style="margin-bottom:14px">Recognition</div>
+    <ul class="honors" style="padding:0">
+      <li><b>2026</b><span><strong>ICMOTA 2026, IIT BHU</strong> — presented research on robust trajectory optimisation for a flying-wing UAV in GPS-denied environments.</span></li>
+      <li><b>Hackathon</b><span><strong>2nd Prize, InCSEption</strong> — as team leader.</span></li>
+      <li><b>National</b><span><strong>Consolation Prize, ANVESHANA 3.0</strong> — national-level prototype competition (₹15,000).</span></li>
+      <li><b>Leadership</b><span><strong>Co-Founder &amp; Chief Secretary, ASTRA Defence Technology Club.</strong></span></li>
+      <li><b>Cert</b><span><strong>Oracle Cloud Infrastructure 2025</strong> — Certified AI Foundations Associate.</span></li>
+    </ul>
+  </div>
+</div></section>
+
+<section id="skills"><div class="wrap">
+  <div class="sec-h rv"><h2>Toolbox</h2></div>
+  <div class="skills rv">
+    <div class="sk"><span class="mono">Languages</span>C · C++ · Python · TypeScript · SQL</div>
+    <div class="sk"><span class="mono">AI / ML</span>RAG pipelines · AI agents · Agent evaluation · Embeddings</div>
+    <div class="sk"><span class="mono">Data</span>PostgreSQL · pgvector · MySQL · Cloudflare D1</div>
+    <div class="sk"><span class="mono">Tooling</span>Git · GitHub · Docker · Claude Code · Codex · CI</div>
+  </div>
+</div></section>
+
+<section id="contact" class="contact"><div class="wrap rv">
+  <div class="mono" style="margin-bottom:18px">Open to software engineering roles &amp; internships</div>
+  <h2>Let's build something dependable.</h2>
+  <div class="cta">
+    <a class="btn primary" href="mailto:rakshak.km.3011@gmail.com">rakshak.km.3011@gmail.com</a>
+    <a class="btn" href="https://www.linkedin.com/in/rakshak-m-k/" target="_blank" rel="noopener">LinkedIn</a>
+    <a class="btn" href="https://github.com/raksh3011" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</div></section>
+</main>
+<footer><div class="wrap"><span>© 2026 Rakshak M K</span><span>Static site · hosted on GitHub Pages</span></div></footer>
+<script src="assets/main.js"></script>
+</body>
+</html>

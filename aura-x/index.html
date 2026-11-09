@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AURAX — GNSS-denied UAV stack · Rakshak M K</title>
+<meta name="description" content="Case study: AURAX, a C++17 autonomous UAV mission stack for GNSS-denied terrain with uncertainty-aware route planning, an EKF navigation filter and a 3-D ground station. Presented at ICMOTA 2026, IIT BHU.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2306090c'/%3E%3Cpath d='M7 22c4-9 8-9 11-3s5 3 7-6' fill='none' stroke='%234fd1c5' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+.res{width:100%;border-collapse:collapse;font-size:.88rem;margin:14px 0}
+.res th,.res td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left}
+.res th{font:500 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.res td{color:var(--mute)}.res td:first-child{color:var(--ink)}.res .hi{color:var(--accent);font-weight:600}
+.res-wrap{overflow-x:auto}
+.arch text{font-family:var(--sans);font-size:12px;fill:var(--ink)}.arch .s{font-size:10px;fill:var(--mute)}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin:24px 0}
+.big div{border:1px solid var(--line);border-radius:var(--r);padding:16px;background:var(--panel)}
+.big b{display:block;font:500 1.9rem var(--serif);letter-spacing:-.02em;color:var(--accent)}.big span{font-size:.8rem;color:var(--mute)}
+</style>
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<script>if(window.self!==window.top||location.search.includes("embed"))document.documentElement.classList.add("embed")</script>
+<style>:root.embed .nav,:root.embed footer,:root.embed .crumb{display:none}:root.embed .page-hero{padding-top:36px}</style>
+<header class="nav scrolled"><div class="wrap"><a class="logo" href="../">Rakshak<i>.</i></a><nav class="links"><a href="../#work">Work</a><a class="btn keep" href="../#contact">Contact</a></nav></div></header>
+<main>
+<section class="page-hero"><div class="wrap">
+  <a class="crumb" href="../">← Portfolio</a>
+  <div class="mono" style="margin-bottom:14px">C++17 · Three.js · Path planning · Navigation · ICMOTA 2026, IIT BHU</div>
+  <h1>AURAX: a UAV that navigates without GPS</h1>
+  <p class="lede">A software stack that flies a simulated long-range flying wing over real mountain terrain using only a LiDAR and an IMU — plans a verified terrain-following route, estimates its own position error, adapts the route and margins to that error, and returns to the launch point with no link to the ground.</p>
+  <div class="cta"><a class="btn primary" href="#replay">Watch a recorded flight ↓</a><a class="btn" href="#results">Measured results</a></div>
+</div></section>
+
+<section style="padding-top:0" id="replay"><div class="wrap">
+  <div class="frame">
+    <div class="bar"><i></i><i></i><i></i><span>AURAX ground station · replay of a recorded simulation (eastern Ladakh terrain)</span></div>
+    <iframe id="gcs" title="AURAX ground station replay" loading="lazy" style="height:min(80vh,760px)"></iframe>
+  </div>
+  <p class="note">This is the real browser ground station replaying logs produced by the C++ simulator. Planning and simulation run locally in the full version; the hosted demo replays recorded flights. Everything is a simulation — no hardware, no real sensor data; sensor models are documented stand-ins.</p>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap"><div class="prose">
+  <h2>The problem</h2>
+  <p>Small UAVs usually rely on a GNSS fix. Take it away (jamming, spoofing, denial) and position error accumulates while the aircraft must still avoid mountains, restricted airspace and unmapped obstacles, finish a task, and come home on a limited battery. A flying wing is efficient but has little control authority to spare, so poor routing wastes energy and margin.</p>
+
+  <h2>The core idea: one uncertainty estimate, used everywhere</h2>
+  <p>A single quantity — the predicted horizontal position uncertainty σ along the route — is mapped through the <em>same</em> small set of functions in every layer: global search cost, terrain-clearance margins, the independent route verifier, local obstacle avoidance and mission tasks. Change the navigation system and the route, margins, avoidance and tasks all change consistently.</p>
+</div>
+<div class="card" style="padding:12px 8px;margin:22px 0">
+<svg class="arch" viewBox="0 0 780 330" role="img" aria-label="Architecture: mission tasks, Margasoochi-G global planner with verifier, Margasoochi-L local planner and flight control, fed by the navigation estimator and Margasoochi-U uncertainty prediction through a shared sigma mapping" style="width:100%;height:auto">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L7 4L0 8Z" fill="var(--accent)"/></marker></defs>
+  <g fill="var(--bg2)" stroke="var(--line2)">
+    <rect x="16" y="14" width="330" height="56" rx="10"/><rect x="16" y="92" width="330" height="56" rx="10"/><rect x="16" y="170" width="330" height="56" rx="10"/><rect x="16" y="248" width="330" height="56" rx="10"/>
+    <rect x="434" y="14" width="330" height="92" rx="10"/><rect x="434" y="128" width="330" height="92" rx="10"/><rect x="434" y="242" width="330" height="62" rx="10"/></g>
+  <rect x="352" y="14" width="76" height="290" rx="10" fill="color-mix(in srgb,var(--accent) 10%,transparent)" stroke="var(--accent)" stroke-dasharray="4 4"/>
+  <text x="390" y="150" text-anchor="middle" font-weight="600" style="fill:var(--accent)">σ</text><text class="s" x="390" y="167" text-anchor="middle">shared</text><text class="s" x="390" y="180" text-anchor="middle">mapping</text>
+  <text x="34" y="38" font-weight="600">Mission tasks</text><text class="s" x="34" y="56">ISR search (point · polygon · corridor) · supply drop</text>
+  <text x="34" y="116" font-weight="600">Margasoochi-G · global planner</text><text class="s" x="34" y="134">Lazy Theta* · 3-D terrain-following · independent verifier</text>
+  <text x="34" y="194" font-weight="600">Margasoochi-L · local planner</text><text class="s" x="34" y="212">LiDAR tracking · 45 motion primitives every 0.2 s</text>
+  <text x="34" y="272" font-weight="600">Mission state machine + flight control</text><text class="s" x="34" y="290">cruise · search · drop · return · point-of-no-return · replan</text>
+  <text x="452" y="38" font-weight="600">Navigation estimator (13-state EKF)</text><text class="s" x="452" y="56">IMU · LiDAR odometry · SITAN/TERCOM terrain matching</text><text class="s" x="452" y="72">image-matching fixes · innovation gating · NEES validated</text><text class="s" x="452" y="90">never reads simulator truth</text>
+  <text x="452" y="152" font-weight="600">Margasoochi-U · uncertainty predictor</text><text class="s" x="452" y="170">predicts σ along a route from relief + image texture</text><text class="s" x="452" y="186">→ detour cost for featureless terrain, wider margins</text>
+  <text x="452" y="266" font-weight="600">Simulator + hidden scene</text><text class="s" x="452" y="284">truth ≠ map · wind · faults · targets the UAV can't list</text>
+  <g stroke="var(--accent)" stroke-width="1.5" fill="none" marker-end="url(#ar)"><path d="M346 42h6"/><path d="M346 120h6"/><path d="M346 198h6"/><path d="M346 276h6"/><path d="M434 60h-6"/><path d="M434 174h-6"/></g>
+</svg></div>
+<div class="prose">
+  <h2>What I'm showing here</h2>
+  <ul>
+    <li><strong>System architecture</strong> — how planning, navigation, sensing and control layers interact, and what each is allowed to assume about the others (my role on the ICMOTA 2026 work).</li>
+    <li><strong>Path planning &amp; trajectory optimisation</strong> — terrain-following 3-D search, smoothing, altitude profile by dynamic programming, and a verifier that never lets an unchecked route fly.</li>
+    <li><strong>Evaluation with honesty</strong> — benchmarks against ablations, estimator consistency (NEES), and documented known limitations.</li>
+  </ul>
+</div>
+
+<h2 id="results" style="margin:56px 0 12px;font:500 clamp(1.5rem,2.6vw,2rem) var(--serif);letter-spacing:-.02em">Measured results <span class="mono" style="font-size:.7rem">(simulation)</span></h2>
+<div class="big">
+  <div><b>23 / 24</b><span>random missions flown and recovered (1 refused pre-flight on energy, 0 failed)</span></div>
+  <div><b>12.3 m</b><span>RMS position error vs. truth, with no GNSS anywhere</span></div>
+  <div><b>113 → 50 m</b><span>worst-case max error crossing a featureless basin, with localisation-aware routing</span></div>
+  <div><b>0.003 ms</b><span>mean local-planner step (a few ms worst case)</span></div>
+</div>
+<div class="res-wrap"><table class="res">
+  <tr><th>Featureless-basin crossing (10 seeds each)</th><th>Route</th><th>RMS error</th><th>Mean max error</th><th>Worst max error</th></tr>
+  <tr><td>Uncertainty layer off</td><td>28.3 km</td><td>22.7 m</td><td>60.3 m</td><td>113.2 m</td></tr>
+  <tr><td>Margasoochi (κ = 0.6)</td><td>28.4 km</td><td>22.0 m</td><td>60.1 m</td><td>87.9 m</td></tr>
+  <tr><td>Margasoochi (κ = 8)</td><td>33.4 km</td><td class="hi">10.7 m</td><td class="hi">34.8 m</td><td class="hi">50.2 m</td></tr>
+</table></div>
+<p class="prose" style="color:var(--mute);font-size:.92rem">The detour costs 18% more route length and buys roughly half the error and a much tighter worst case. On routes that already cross rugged terrain the effect is small — and the write-up says so. Global planner comparison on 40 random 15–50 km missions: 39/40 verified routes at ~0.7 s mean planning time, path length 1.04× straight-line.</p>
+
+<div class="prose">
+  <h2>Honest limits</h2>
+  <ul>
+    <li>Everything is simulated; LiDAR, odometry, scene-matching and detector models are stand-ins behind small interfaces, with assumptions documented in the repository.</li>
+    <li>The navigation uncertainty predictor is calibrated against the simulation and is optimistic in the tail; a thin wire missing from the map is a known collision case.</li>
+  </ul>
+  <p>The full source is kept private. A walkthrough is available on request.</p>
+</div></div></section>
+
+<section class="contact" style="padding-top:10px"><div class="wrap"><div class="cta"><a class="btn" href="../">← Back to portfolio</a><a class="btn primary" href="mailto:rakshak.km.3011@gmail.com">Discuss this work</a></div></div></section>
+</main>
+<footer><div class="wrap"><span>© 2026 Rakshak M K</span><span>Static site · GitHub Pages</span></div></footer>
+<script>
+const AURAX = ['localhost','127.0.0.1'].includes(location.hostname) ? 'http://127.0.0.1:5180/' : 'https://raksh3011.github.io/aurax-demo/';
+const f = document.getElementById('gcs'); new IntersectionObserver(([e], o) => { if (e.isIntersecting) { f.src = AURAX; o.disconnect(); } }, { rootMargin: '300px' }).observe(f);
+</script>
+</body>
+</html>

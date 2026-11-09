@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ORVMS — Ocean Risk &amp; Vessel Monitoring · Rakshak M K</title>
+<meta name="description" content="Case study: a multi-tenant, serverless maritime risk and supply-chain visibility platform on Cloudflare Workers, D1 and Durable Objects.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2306090c'/%3E%3Cpath d='M7 22c4-9 8-9 11-3s5 3 7-6' fill='none' stroke='%234fd1c5' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}
+.flow>div{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--panel);position:relative}
+.flow>div:not(:last-child)::after{content:"→";position:absolute;right:-17px;top:50%;transform:translateY(-50%);color:var(--accent);z-index:1}
+.flow b{display:block;font-size:.9rem;margin-bottom:4px}.flow span{font-size:.8rem;color:var(--mute)}
+.roles{width:100%;border-collapse:collapse;font-size:.9rem;margin:16px 0}
+.roles th,.roles td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.roles th{font:500 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.roles td:first-child{color:var(--ink);font-weight:500;white-space:nowrap}.roles td{color:var(--mute)}
+@media(max-width:820px){.flow{grid-template-columns:1fr 1fr}.flow>div::after{display:none}.roles{display:block;overflow-x:auto}}
+#demo-fallback{padding:48px 24px;text-align:center;color:var(--mute)}
+:root.embed .nav,:root.embed footer,:root.embed .crumb{display:none}:root.embed .page-hero{padding-top:36px}
+</style>
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<script>if(window.self!==window.top||location.search.includes("embed"))document.documentElement.classList.add("embed")</script>
+<header class="nav scrolled"><div class="wrap"><a class="logo" href="../">Rakshak<i>.</i></a><nav class="links"><a href="../#work">Work</a><a class="btn keep" href="../#contact">Contact</a></nav></div></header>
+<main>
+<section class="page-hero"><div class="wrap">
+  <a class="crumb" href="../#work">← Selected work</a>
+  <div class="mono" style="margin-bottom:14px">Full-stack · Serverless · Real-time</div>
+  <h1>ORVMS: from risk at sea to delivery commitments</h1>
+  <p class="lede">A multi-tenant platform for shipping companies and the Indian Coast Guard. It connects live and synthetic AIS, modelled maritime zones and graded alerts to voyages, customer shipments and SLAs — and runs on free-tier serverless infrastructure.</p>
+  <div class="cta"><a class="btn primary" href="#demo">Live demo ↓</a><a class="btn" href="https://github.com/raksh3011/MSA" target="_blank" rel="noopener">Source on GitHub</a></div>
+</div></section>
+
+<section style="padding-top:0" id="demo"><div class="wrap">
+  <div class="frame">
+    <div class="bar"><i></i><i></i><i></i><span id="demo-url">ORVMS · live</span></div>
+    <iframe id="demo-frame" title="ORVMS live demo" loading="lazy" hidden></iframe>
+    <div id="demo-fallback">The hosted demo is being deployed. Meanwhile, the source, docs and a 5-minute walkthrough are in the repository.<br><br><a class="btn" href="https://github.com/raksh3011/MSA#quick-start" target="_blank" rel="noopener">Quick start &amp; walkthrough</a></div>
+  </div>
+  <div class="card" id="demo-creds" hidden style="margin:18px 0">
+    <h4 style="margin-bottom:6px">Try it — demo accounts</h4>
+    <p style="color:var(--mute);font-size:.9rem;margin:0">Password for all: <code>OrvmsDemo-2026</code> · usernames <code>operator</code> (shipments &amp; voyages), <code>riskofficer</code> + <code>orgadmin</code> (approval workflow — critical voyages need two people), <code>cg.kochi</code> (Coast Guard case desk), <code>admin</code> (platform console). Sandbox data; resets are not guaranteed.</p>
+  </div>
+  <p class="note">Vessel traffic near India is partly <strong>synthetic and always labelled</strong>; real feeds come from aisstream.io and Digitraffic. Zones are modelled, not official limits. Payments run in a sandbox.</p>
+</div></section>
+
+<section style="padding-top:0"><div class="wrap"><div class="prose">
+  <h2>What it does</h2>
+  <table class="roles">
+    <tr><th>Who</th><th>Capability</th></tr>
+    <tr><td>Operators</td><td>Supply-chain control tower: live ETA from the vessel's position, delivery risk against the committed date, cargo value passing through risk areas.</td></tr>
+    <tr><td>Risk officers</td><td>Voyage planning with automatic route-risk assessment and an approval workflow: low auto-approves, high needs a risk officer, critical needs two people, and the preparer can never approve.</td></tr>
+    <tr><td>Coast Guard</td><td>Suspicious-vessel case desk with priority P1–P4, SLA timers, assignment, automatic escalation and post-incident reports.</td></tr>
+    <tr><td>Org admins</td><td>Fleet registry with CSV import, plans and quotas, billing with GST invoices, compliance reports, API keys and HMAC-signed webhooks.</td></tr>
+    <tr><td>Platform owner</td><td>Onboarding, revenue and receivables console, operations and health, backups and audit trail.</td></tr>
+  </table>
+
+  <h2>Architecture</h2>
+  <p>Four-layer design with business rules kept as pure, testable functions.</p>
+  <div class="flow">
+    <div><b>Presentation</b><span>TypeScript single-page app, live map and role-based views</span></div>
+    <div><b>API</b><span>Hono REST + WebSocket, JWT auth, RBAC, tenant isolation</span></div>
+    <div><b>Services</b><span>Voyages, shipments, cases, billing, webhooks, background jobs</span></div>
+    <div><b>Domain</b><span>Risk engine, scoring, ETA, SLA rules, invoicing — pure functions</span></div>
+  </div>
+  <ul>
+    <li><strong>Real-time path:</strong> feed adapters parse, validate, normalise and throttle AIS from WebSocket and REST sources into a Durable Object hub that holds vessel state, runs the risk engine and raises graded alerts.</li>
+    <li><strong>Storage:</strong> Cloudflare D1 for business records; the same business API runs against in-memory <em>and</em> SQL storage in tests.</li>
+    <li><strong>Quality:</strong> 226 unit and API tests, lint, type-check and CI; OpenAPI spec and written requirements, architecture and tech-decision records.</li>
+  </ul>
+  <div class="grid3">
+    <div class="card"><h4>Tenant isolation</h4><p>One organisation can never read or change another's data.</p></div>
+    <div class="card"><h4>Segregation of duties</h4><p>Preparers cannot approve their own voyages; critical risk needs two approvers.</p></div>
+    <div class="card"><h4>Zero-cost hosting</h4><p>Workers + Durable Objects (SQLite) + D1 on the free plan.</p></div>
+  </div>
+</div></div></section>
+</main>
+<footer><div class="wrap"><span>© 2026 Rakshak M K</span><span>Static site · GitHub Pages</span></div></footer>
+<script>
+// Set once the Worker is deployed (e.g. 'https://orvms.<account>.workers.dev').
+const LIVE_URL = '';
+if (LIVE_URL) {
+  const f = document.getElementById('demo-frame');
+  f.src = LIVE_URL; f.hidden = false;
+  document.getElementById('demo-fallback').hidden = true;
+  document.getElementById('demo-creds').hidden = false;
+  document.getElementById('demo-url').textContent = LIVE_URL.replace('https://', '');
+}
+</script>
+</body>
+</html>

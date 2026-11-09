@@ -1,0 +1,4 @@
+projects/
+dist/
+.claude/
+tools/__pycache__/

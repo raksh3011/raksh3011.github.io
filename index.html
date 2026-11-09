@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rakshak M K — Software Engineer</title>
+<meta name="description" content="Portfolio of Rakshak M K, software engineer: FloatChat (RAG over Argo ocean data), ORVMS (maritime risk platform) and AURAX (GNSS-denied UAV stack) — all live, in a retro desktop.">
+<meta name="theme-color" content="#05080b">
+<meta property="og:title" content="Rakshak M K — Software Engineer">
+<meta property="og:description" content="Live demos: ocean-data RAG, maritime risk platform, GNSS-denied UAV mission stack.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2305080b'/%3E%3Cpath d='M6 21c4-9 8-9 11-3s5 3 9-6' fill='none' stroke='%234fd1c5' stroke-width='2.5' stroke-linecap='square'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/os.css">
+<script>try{var t=localStorage.getItem('os-theme');if(t)document.documentElement.dataset.theme=t;else if(matchMedia('(prefers-color-scheme: light)').matches)document.documentElement.dataset.theme='paper'}catch(e){}</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-readme" viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5z M15 3v4h4 M8 11h8 M8 14h8 M8 17h5"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z M3 10h18"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><path d="M3 5h18v14H3z M7 10l3 2.5L7 15 M12 15h5"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M3 5h18v14H3z M5 15c2-6 4-6 6-2s4 4 8-3 M3 9h18"/></symbol>
+  <symbol id="i-ship" viewBox="0 0 24 24"><path d="M12 3v9 M8 7h8 M3 14l2 5h14l2-5z M6 14v-2h12v2 M2 22c3-2 5 2 8 0s5 2 8 0 3 0 4 0"/></symbol>
+  <symbol id="i-uav" viewBox="0 0 24 24"><path d="M12 3l2 6 9 5-1 2-8-2v4l3 3-1 2-4-2-4 2-1-2 3-3v-4l-8 2-1-2 9-5z"/></symbol>
+  <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5z M15 3v4h4 M8 15h2a1.5 1.5 0 000-3H8v5 M13 17v-5h1.5a2.5 2.5 0 010 5z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><path d="M3 6h18v13H3z M3 7l9 7 9-7"/></symbol>
+  <symbol id="i-brief" viewBox="0 0 24 24"><path d="M3 8h18v12H3z M9 8V5h6v3 M3 13h18"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><path d="M7 7h10v10H7z M10 10h4v4h-4z M9 3v4 M15 3v4 M9 17v4 M15 17v4 M3 9h4 M3 15h4 M17 9h4 M17 15h4"/></symbol>
+  <symbol id="i-theme" viewBox="0 0 24 24"><path d="M12 3a9 9 0 100 18V3z"/></symbol>
+  <symbol id="i-classic" viewBox="0 0 24 24"><path d="M4 4h16v16H4z M4 9h16 M8 13h8 M8 16h5"/></symbol>
+</svg>
+
+<main id="desk" aria-label="Desktop">
+  <canvas id="wall" aria-hidden="true"></canvas>
+  <div id="widget"><b>Rakshak M K</b><span>SOFTWARE ENGINEER · BENGALURU</span><i>double-click an icon · or type in the Terminal</i></div>
+  <nav id="icons" aria-label="Applications"></nav>
+  <div id="wins"></div>
+</main>
+
+<footer id="tb">
+  <button id="start" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 18c4-10 8-10 11-3s5 3 7-6"/></svg>START</button>
+  <div id="tasks" role="tablist" aria-label="Open windows"></div>
+  <div id="tray"><button id="b-theme" title="Switch theme" aria-label="Switch theme">◐</button><span class="clock" id="clock">--:--</span></div>
+</footer>
+<div id="menu" role="menu" aria-label="Start menu"></div>
+
+<!-- Crawler- and screen-reader-friendly text; the desktop above is progressive enhancement. -->
+<section class="sr">
+  <h1>Rakshak M K — Software Engineer</h1>
+  <p>Computer Science undergraduate (BMSIT&amp;M, CGPA 8.66) and Software Engineer Intern at ApthaAI. Builds AI-driven, data-intensive systems.</p>
+  <h2>Projects</h2>
+  <ul>
+    <li><a href="floatchat/">FloatChat</a> — natural-language questions over real Argo float profiles: NetCDF ingestion, PostgreSQL + pgvector semantic search, tool-using agent. Live demo.</li>
+    <li><a href="orvms/">ORVMS</a> — multi-tenant maritime risk and supply-chain platform on Cloudflare Workers, D1 and Durable Objects; 226 automated tests.</li>
+    <li><a href="aura-x/">AURAX</a> — GNSS-denied UAV mission stack with uncertainty-aware route planning; presented at ICMOTA 2026, IIT BHU.</li>
+  </ul>
+  <p><a href="classic.html">Classic view</a> · <a href="mailto:rakshak.km.3011@gmail.com">Email</a> · <a href="https://github.com/raksh3011">GitHub</a> · <a href="https://www.linkedin.com/in/rakshak-m-k/">LinkedIn</a></p>
+</section>
+<noscript><p style="position:fixed;inset:auto 0 60px 0;text-align:center;color:#aaa;font:14px sans-serif">The desktop needs JavaScript — see the <a href="classic.html" style="color:#4fd1c5">classic view</a>.</p></noscript>
+<script src="assets/os.js"></script>
+</body>
+</html>
