@@ -15,7 +15,7 @@
   // ---- where the live demos run. Edit here when a deployment moves. ----
   const URLS = {
     floatchat: 'floatchat/?embed=1',
-    aurax: '',
+    aurax: 'https://aurax-replay.pages.dev/',
     orvms: 'orvms/app/',             // static build: the real API runs in the browser tab (see orvms/ case study)
   };
   const LINKS = { github: 'https://github.com/raksh3011', linkedin: 'https://www.linkedin.com/in/rakshak-m-k/', email: 'rakshak.km.3011@gmail.com' };
@@ -23,8 +23,8 @@
   // ---------------------------------------------------------------- content
   const doc = (html) => el('div', { class: 'doc', html });
   const PROJECTS = [
-    { id: 'aurax', icon: 'uav', name: 'AURAX', blurb: 'GNSS-denied UAV mission stack (simulation): terrain-following 3-D planning, localisation-aware routing, LiDAR+IMU navigation, and a 3-D ground station. Flagship project; case study with measured results.',
-      tags: ['C++17', 'Three.js', 'Path planning', 'Navigation'], featured: true, live: false, case: 'aura-x/?embed=1' },
+    { id: 'aurax', icon: 'uav', name: 'AURAX', blurb: 'GNSS-denied UAV mission stack (simulation): terrain-following 3-D planning, localisation-aware routing, LiDAR+IMU navigation, and a 3-D ground station. Flagship project. Replay recorded flights in the browser and read the case study with measured results.',
+      tags: ['C++17', 'Three.js', 'Path planning', 'Navigation'], featured: true, live: true, case: 'aura-x/?embed=1' },
     { id: 'orvms', icon: 'ship', name: 'ORVMS', blurb: 'Multi-tenant maritime risk and supply-chain platform: live AIS, voyage approvals, SLA-driven Coast Guard case desk, billing, signed webhooks. Serverless on Cloudflare; 226 automated tests.',
       tags: ['TypeScript', 'Cloudflare Workers', 'D1', 'Durable Objects'], live: !!URLS.orvms, repo: 'https://github.com/raksh3011/MSA', case: 'orvms/?embed=1' },
     { id: 'floatchat', icon: 'wave', name: 'FloatChat', blurb: 'Ask real Argo ocean-float data questions in plain English. Schema-agnostic NetCDF ingestion, PostgreSQL + pgvector semantic search, a tool-using agent — and a demo that runs entirely in your browser.',
@@ -37,7 +37,7 @@
       <p>I build <b>AI-driven, data-intensive systems</b> and care about the unglamorous parts that make them dependable: idempotent pipelines, tests, honest evaluation, clear system design.</p>
       <h3>Start here</h3>
       <ul>
-        <li><b>AURAX</b> — flagship: UAV mission stack for GPS-denied terrain. <a href="#aurax" data-open="aurax">Case study</a></li>
+        <li><b>AURAX</b> — flagship: UAV mission stack for GPS-denied terrain. <a href="#aurax" data-open="aurax">Open 3-D replay</a></li>
         <li><b>ORVMS</b> — maritime risk platform, runs in your browser. <a href="#orvms" data-open="orvms">Open live demo</a></li>
         <li><b>FloatChat</b> — chat with real ocean-float data. <a href="#floatchat" data-open="floatchat">Open live demo</a></li>
       </ul>
@@ -46,11 +46,11 @@
       <div class="row"><button class="btn pri" data-open="projects">▸ Projects</button><button class="btn" data-open="terminal">▸ Terminal</button><button class="btn" data-open="resume">▸ Resume (by mail)</button><button class="btn" data-open="contact">▸ Contact</button></div>`) },
 
     projects: { title: 'Projects', icon: 'folder', w: 820, h: 520, build: () => el('div', { class: 'cards' }, PROJECTS.map((p) => el('article', { class: 'card' },
-      el('div', { class: 'live', style: p.featured ? 'color:var(--accent2)' : '' }, p.featured ? '★ flagship · case study' : p.live ? 'live demo' : 'case study'),
+      el('div', { class: 'live', style: p.featured ? 'color:var(--accent2)' : '' }, p.featured ? '★ flagship · live replay' : p.live ? 'live demo' : 'case study'),
       el('h4', {}, p.name), el('p', {}, p.blurb), el('div', { class: 'tags' }, p.tags.map((t) => el('span', {}, t))),
       el('div', { class: 'row' },
-        el('button', { class: 'btn pri', 'data-open': p.id }, p.featured ? '▸ Case study' : '▸ Open demo'),
-        p.case && !p.featured ? el('button', { class: 'btn', 'data-open': p.id + '-case' }, 'Case study') : null,
+        el('button', { class: 'btn pri', 'data-open': p.id }, '▸ Open demo'),
+        p.case ? el('button', { class: 'btn', 'data-open': p.id + '-case' }, 'Case study') : null,
         p.repo ? el('a', { class: 'btn', href: p.repo, target: '_blank', rel: 'noopener' }, 'Source ↗') : null)))) },
 
     career: { title: 'career.log', icon: 'brief', w: 640, h: 560, build: () => doc(`
@@ -84,7 +84,7 @@
       <div class="row"><a class="btn pri" href="mailto:${LINKS.email}?subject=R%C3%A9sum%C3%A9%20request&body=Hi%20Rakshak%2C%20could%20you%20please%20share%20your%20r%C3%A9sum%C3%A9%3F">✉ Request résumé by mail</a></div>
       <p style="color:var(--mute);margin-top:14px">${LINKS.email}</p>`) },
     floatchat: { title: 'FloatChat.app', icon: 'wave', w: 1080, h: 660, url: URLS.floatchat, ext: 'floatchat/' },
-    aurax: { title: 'AURAX — case study', icon: 'uav', w: 960, h: 700, url: 'aura-x/?embed=1', ext: 'aura-x/' },
+    aurax: { title: 'AURAX.app — ground station (replay)', icon: 'uav', w: 1100, h: 680, url: URLS.aurax, ext: URLS.aurax },
     orvms: { title: 'ORVMS.app', icon: 'ship', w: 1080, h: 660, url: URLS.orvms || 'orvms/?embed=1', ext: URLS.orvms || 'orvms/' },
     'aurax-case': { title: 'AURAX — case study', icon: 'uav', w: 900, h: 680, url: 'aura-x/?embed=1', ext: 'aura-x/' },
     'orvms-case': { title: 'ORVMS — case study', icon: 'ship', w: 900, h: 680, url: 'orvms/?embed=1', ext: 'orvms/' },
