@@ -16,14 +16,14 @@
   const SUGGEST = [
     'Temperature profiles in the Arabian Sea',
     'Compare salinity in the Arabian Sea vs the Bay of Bengal',
-    'How many profiles near the equator in the first week?',
+    'How many profiles near the equator in the last 7 days?',
     'Where is the thermocline in the Bay of Bengal?',
     'Warmest profile at 100 m',
     'Floats within 500 km of 10N 70E',
     'Low-salinity river-influenced surface water',
   ];
 
-  let DATA, LAND, VIEW = 'T', CUR = { sets: [], sel: null }, B;
+  let DATA, LAND, RANGE, VIEW = 'T', CUR = { sets: [], sel: null }, B, LAST = null, LASTV = null;
   const el = { log: $('#log'), q: $('#q'), pills: $('#pills'), stats: $('#stats'), map: $('#map'), plot: $('#plot'), tip: $('#tip'), cnt: $('#mapcount') };
 
   // ---------- helpers ----------
@@ -31,12 +31,48 @@
     const r = Math.PI / 180, x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2;
     return 12742 * Math.asin(Math.sqrt(x));
   };
-  const day = (p) => +p.t.slice(8, 10);
-  const lvIdx = (m) => DATA.levels.reduce((b, l, i) => (Math.abs(l - m) < Math.abs(DATA.levels[b] - m) ? i : b), 0);
+    const lvIdx = (m) => DATA.levels.reduce((b, l, i) => (Math.abs(l - m) < Math.abs(DATA.levels[b] - m) ? i : b), 0);
   const mean = (a) => a.reduce((s, v) => s + v, 0) / a.length;
   const q = (arr, f) => { const s = [...arr].sort((a, b) => a - b); return s[Math.min(s.length - 1, Math.floor(f * (s.length - 1)))]; };
   const fmt = (v, d = 2) => (v == null || isNaN(v) ? '—' : v.toFixed(d));
   const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+
+  // ---------- dates: understood against whatever period the dataset covers ----------
+  const MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+  const MNAME = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const isoOf = (dt) => dt.getUTCFullYear() + '-' + pad2(dt.getUTCMonth() + 1) + '-' + pad2(dt.getUTCDate());
+  const addDays = (iso, n) => { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return isoOf(d); };
+  const nice = (iso) => { const d = new Date(iso + 'T00:00:00Z'); return d.getUTCDate() + ' ' + MNAME[d.getUTCMonth()]; };
+  const monthRx = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+  function parseDates(t) {
+    const [lo, hi] = RANGE, span = Math.round((new Date(hi) - new Date(lo)) / 864e5) + 1;
+    const clampR = (a, b, label) => { a = a < lo ? lo : a; b = b > hi ? hi : b; return { range: [a, b], label }; };
+    // yearOf(month, day): the year in which that calendar day falls inside the period (else the period's end year)
+    const when = (m, d) => { for (const y of [+lo.slice(0, 4), +hi.slice(0, 4)]) { const iso = y + '-' + pad2(m + 1) + '-' + pad2(d); if (iso >= lo && iso <= hi) return iso; } return +hi.slice(0, 4) + '-' + pad2(m + 1) + '-' + pad2(d); };
+    let m;
+    if ((m = t.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/))) return clampR(m[0], m[0], m[0]);
+    const mm = (x) => MON[x.slice(0, 3)];
+    if ((m = t.match(new RegExp('\\b' + monthRx + '\\s*(\\d{1,2})(?:st|nd|rd|th)?\\s*(?:-|to|and|–|until)\\s*(?:' + monthRx + '\\s*)?(\\d{1,2})\\b')))) {
+      const a = when(mm(m[1]), +m[2]), b = when(m[3] ? mm(m[3]) : mm(m[1]), +m[4]); return clampR(a, b, nice(a) + '–' + nice(b));
+    }
+    if ((m = t.match(new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?\\s*(?:-|to|–)\\s*(\\d{1,2})(?:st|nd|rd|th)?\\s*(?:of\\s*)?' + monthRx + '\\b')))) {
+      const a = when(mm(m[3]), +m[1]), b = when(mm(m[3]), +m[2]); return clampR(a, b, nice(a) + '–' + nice(b));
+    }
+    if ((m = t.match(new RegExp('\\b' + monthRx + '\\s*(\\d{1,2})\\b'))) || (m = t.match(new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?\\s*(?:of\\s*)?' + monthRx + '\\b')))) {
+      const [mo, d] = isNaN(m[1]) ? [m[1], m[2]] : [m[2], m[1]]; const iso = when(mm(mo), +d); return clampR(iso, iso, nice(iso));
+    }
+    if ((m = t.match(/\b(?:last|past|previous)\s+(\d{1,3})\s+days?\b/))) { const n = Math.min(+m[1], span); return clampR(addDays(hi, 1 - n), hi, `last ${n} days`); }
+    if (/first week/.test(t)) return clampR(lo, addDays(lo, 6), 'first week');
+    if (/second week/.test(t)) return clampR(addDays(lo, 7), addDays(lo, 13), 'second week');
+    if (/third week/.test(t)) return clampR(addDays(lo, 14), addDays(lo, 20), 'third week');
+    if (/(fourth|last) week|end of (the )?(month|period)/.test(t)) return clampR(addDays(hi, -6), hi, 'last week');
+    if (/first half/.test(t)) return clampR(lo, addDays(lo, Math.floor(span / 2) - 1), 'first half');
+    if (/second half/.test(t)) return clampR(addDays(lo, Math.floor(span / 2)), hi, 'second half');
+    if ((m = t.match(new RegExp('\\b(?:in|during|for)\\s+' + monthRx + '\\b')))) { const mo = mm(m[1]), y = +(lo.slice(5, 7) - 1 === mo ? lo.slice(0, 4) : hi.slice(0, 4)); return clampR(y + '-' + pad2(mo + 1) + '-01', y + '-' + pad2(mo + 1) + '-31', MNAME[mo]); }
+    return null;
+  }
 
   // ---------- query planner ----------
   function planPart(text) {
@@ -54,24 +90,14 @@
       const nth = t.match(/\b(north|south) of (-?\d+(?:\.\d+)?)/);
       if (nth) { const v = +nth[2] * (nth[1] === 'south' && +nth[2] > 0 ? -1 : 1); f.lat = nth[1] === 'north' ? [v, 90] : [-90, v]; f.label.push(`${nth[1]} of ${nth[2]}°`); }
     }
-    // dates (data covers Jan 2020, 31 daily files)
-    const d1 = t.match(/\b(?:on |from |between )?(?:jan(?:uary)?\s*(\d{1,2})|(\d{1,2})(?:st|nd|rd|th)?\s*(?:of\s*)?jan(?:uary)?)\b/);
-    const rng = t.match(/jan(?:uary)?\s*(\d{1,2})\s*(?:-|to|and|–)\s*(?:jan(?:uary)?\s*)?(\d{1,2})/);
-    if (rng) { f.days = [+rng[1], +rng[2]]; f.label.push(`Jan ${rng[1]}–${rng[2]}`); }
-    else if (d1) { const d = +(d1[1] || d1[2]); f.days = [d, d]; f.label.push(`Jan ${d}`); }
-    else if (/first week/.test(t)) { f.days = [1, 7]; f.label.push('first week'); }
-    else if (/second week/.test(t)) { f.days = [8, 14]; f.label.push('second week'); }
-    else if (/third week/.test(t)) { f.days = [15, 21]; f.label.push('third week'); }
-    else if (/(fourth|last) week|end of (the )?month/.test(t)) { f.days = [22, 31]; f.label.push('last week'); }
-    else if (/first half/.test(t)) { f.days = [1, 15]; f.label.push('first half'); }
-    else if (/second half/.test(t)) { f.days = [16, 31]; f.label.push('second half'); }
+    const dr = parseDates(t); f.rl = f.label.slice(); f.dl = null; if (dr) { f.days = dr.range; f.dl = dr.label; f.label.push(dr.label); }
     const dep = t.match(/\b(?:at|around|near)\s*(\d{1,4})\s*(?:m|dbar|metres?|meters?)\b/);
     if (dep) f.depth = +dep[1]; else if (/\bsurface\b/.test(t)) f.depth = 0;
     return f;
   }
   const apply = (f) => DATA.profiles.filter((p) =>
     (!f.lat || (p.lat >= f.lat[0] && p.lat <= f.lat[1])) && (!f.lon || (p.lon >= f.lon[0] && p.lon <= f.lon[1])) &&
-    (!f.near || hav(f.near.lat, f.near.lon, p.lat, p.lon) <= f.near.km) && (!f.days || (day(p) >= f.days[0] && day(p) <= f.days[1])));
+    (!f.near || hav(f.near.lat, f.near.lon, p.lat, p.lon) <= f.near.km) && (!f.days || (p.t.slice(0, 10) >= f.days[0] && p.t.slice(0, 10) <= f.days[1])));
 
   function plan(text) {
     const t = text.toLowerCase();
@@ -100,28 +126,29 @@
 
   // ---------- profile math ----------
   const column = (profs, v, i) => profs.map((p) => p[v] && p[v][i]).filter((x) => x != null);
-  function mld(p) { // depth where T falls 0.5 °C below the 20 dbar value
-    if (!p.T) return null; const r = p.T[1] ?? p.T[0]; if (r == null) return null;
-    for (let i = 2; i < p.T.length; i++) if (p.T[i] != null && r - p.T[i] >= 0.5) return DATA.levels[i - 1] + 0;
-    return null;
-  }
-  function thermo(p) { // depth of maximum |dT/dz|
-    if (!p.T) return null; let best = 0, at = null;
-    for (let i = 1; i < p.T.length; i++) { const a = p.T[i - 1], b = p.T[i]; if (a == null || b == null) continue; const g = Math.abs(b - a); if (g > best) { best = g; at = (DATA.levels[i] + DATA.levels[i - 1]) / 2; } }
-    return at;
-  }
-
   // ---------- answer ----------
-  function answer(text) {
+  const FOLLOW = /\b(there|same (?:region|area|place|period|dates?)|that (?:region|area|period)|those|them|what about|how about|and (?:the )?(?:salinity|temperature)|there too)\b/;
+  function answer(text, over) {
     const P = plan(text); CUR.sel = null;
+    const hasWhere = (f) => f.lat || f.lon || f.near || f.days;
+    if (!over && LAST && FOLLOW.test(P.text)) {          // a follow-up keeps whatever the new question leaves out: region and/or dates
+      const regionGiven = P.f.lat || P.f.lon || P.f.near;
+      if (!regionGiven) { for (const k of ['lat', 'lon', 'near']) P.f[k] = LAST[k]; P.f.rl = LAST.rl; }
+      if (!P.f.days) { P.f.days = LAST.days; P.f.dl = LAST.dl; }
+      P.f.label = [...P.f.rl, ...(P.f.dl ? [P.f.dl] : [])];
+      P.carried = true; if (!P.vGiven && LASTV) P.v = LASTV;
+    }
+    if (P.vGiven) LASTV = P.v;
+    if (over) { Object.assign(P.f, over.f); P.f.rl = [over.label]; P.f.label = [over.label, ...(P.f.dl ? [P.f.dl] : [])]; }
+    LAST = hasWhere(P.f) ? { lat: P.f.lat, lon: P.f.lon, near: P.f.near, days: P.f.days, rl: P.f.rl || P.f.label, dl: P.f.dl || null } : LAST;
     const sets = P.sets ? P.sets.map((f) => ({ f, data: apply(f) })) : [{ f: P.f, data: apply(P.f) }];
     CUR.sets = sets; CUR.P = P;
     const main = sets[0].data, vn = P.v === 'T' ? 'temperature' : 'salinity', unit = P.v === 'T' ? '°C' : 'PSU';
     const di = P.f.depth != null ? lvIdx(P.f.depth) : null, dm = di != null ? DATA.levels[di] : null;
     let msg = '', pills = sets.flatMap((s) => s.f.label), stats = [];
     if (sets.every((s) => !s.data.length)) {
-      msg = `I couldn't find profiles matching that. The sample covers the Indian Ocean, <b>January 2020</b> (31 daily files). Try a region like <i>Arabian Sea</i> or <i>Bay of Bengal</i>, or a date like <i>Jan 12</i>.`;
-      CUR.sets = []; draw(); el.pills.innerHTML = ''; el.stats.innerHTML = ''; return msg;
+      msg = `I couldn't find profiles matching that. The data covers the Indian Ocean, <b>${nice(RANGE[0])} – ${nice(RANGE[1])} ${RANGE[1].slice(0, 4)}</b>. Try a region like <i>Arabian Sea</i> or <i>Bay of Bengal</i>, or a date like <i>${nice(addDays(RANGE[1], -3))}</i>.`;
+      CUR.sets = []; draw(); el.pills.innerHTML = ''; el.stats.innerHTML = ''; renderList(); return msg;
     }
     const sd = (d) => (di != null ? column(d, P.v, di) : null);
     switch (P.intent) {
@@ -166,10 +193,40 @@
     if (P.intent === 'show' && !P.vGiven) msg += ` <small>Toggle Temp / Salinity / T–S above the chart to switch variable.</small>`;
     VIEW = P.intent === 'thermocline' ? 'T' : (P.vGiven ? P.v : VIEW === 'TS' ? 'TS' : P.v);
     document.querySelectorAll('#seg button').forEach((b) => b.classList.toggle('on', b.dataset.v === VIEW));
-    el.pills.innerHTML = pills.map((x) => `<span class="pill">${esc(x)}</span>`).join('') + `<span class="pill" style="color:var(--mute);border-color:var(--line2);background:none">plan: ${P.intent}${P.vGiven ? ' · ' + P.v : ''}</span>`;
+    el.pills.innerHTML = (P.carried ? '<span class="pill" style="color:var(--mute);border-color:var(--line2);background:none">↳ follow-up</span>' : '') + pills.map((x) => `<span class="pill">${esc(x)}</span>`).join('') + `<span class="pill" style="color:var(--mute);border-color:var(--line2);background:none">plan: ${P.intent}${P.vGiven ? ' · ' + P.v : ''}</span>`;
     el.stats.innerHTML = stats.map(([a, b]) => `<div><b>${a}</b><span>${esc(String(b))}</span></div>`).join('');
-    draw(); return msg;
+    draw(); renderList();
+    return msg + how(P, sets);
   }
+  // transparency: the tool call and the filter the PostgreSQL backend would run for this question
+  const TOOL = { count: 'count_profiles', thermocline: 'depth_stats(thermocline, mld)', extreme: 'extreme_profile', nearest: 'nearest_profiles', compare: 'depth_stats ×2', semantic: 'semantic_search', mean: 'depth_stats', show: 'depth_stats' };
+  function how(P, sets) {
+    const f = sets[0].f, c = [];
+    if (f.lat) c.push(`lat BETWEEN ${f.lat[0]} AND ${f.lat[1]}`);
+    if (f.lon) c.push(`lon BETWEEN ${f.lon[0]} AND ${f.lon[1]}`);
+    if (f.near) c.push(`earth_distance(ll_to_earth(lat, lon), ll_to_earth(${f.near.lat}, ${f.near.lon})) <= ${f.near.km * 1000}`);
+    if (f.days) c.push(`juld >= '${f.days[0]}' AND juld < '${addDays(f.days[1], 1)}'`);
+    const v = P.v === 'T' ? 'TEMP' : 'PSAL', d = f.depth != null ? ` AND pres_dbar BETWEEN ${f.depth - 10} AND ${f.depth + 10}` : '';
+    const sql = ['SELECT avg(m.value) FROM measurements m JOIN profiles p USING (profile_id)', `WHERE m.variable = '${v}'${d}`, '  AND qc IN (1, 2)', ...c.map((x) => '  AND ' + x)].join('\n') + ';';
+    return `<details class="how"><summary>How this was answered</summary><code>tool: ${TOOL[P.intent] || 'depth_stats'}</code><pre>${esc(sql)}</pre><small>The hosted demo computes this in your browser from a static export; the full system runs it against PostgreSQL (guarded, read-only).</small></details>`;
+  }
+  // result list: keyboard-friendly alternative to clicking dots on the map, with CSV export
+  const rowOf = (p) => `<button type="button" class="row${CUR.sel === p ? ' on' : ''}" data-id="${p.id}"><b>${p.wmo}</b><span>${p.t.slice(5, 10)}</span><span>${fmt(p.lat, 1)}°, ${fmt(p.lon, 1)}°</span><span>${fmt(p.T?.[0], 1)} °C</span><span>${fmt(p.S?.[0], 2)}</span></button>`;
+  function renderList() {
+    const data = CUR.sets.length ? CUR.sets[0].data : [], box = $('#list');
+    $('#listcount').textContent = data.length ? `${data.length} profile${data.length > 1 ? 's' : ''}` : '';
+    $('#csv').hidden = !data.length;
+    box.innerHTML = data.length ? '<div class="row head"><span>Float</span><span>Date</span><span>Position</span><span>SST</span><span>SSS</span></div>' + data.slice(0, 60).map(rowOf).join('') + (data.length > 60 ? `<div class="more">+ ${data.length - 60} more, in the CSV</div>` : '') : '<div class="more">Matching profiles are listed here.</div>';
+    const cap = data.length ? `${data.length} profiles highlighted on the map` : 'Map of Argo profile positions';
+    el.map.setAttribute('aria-label', cap); el.plot.setAttribute('aria-label', data.length ? 'Depth profiles of the highlighted floats' : 'Depth profile chart');
+  }
+  $('#list').addEventListener('click', (e) => { const b = e.target.closest('.row[data-id]'); if (!b) return; const p = DATA.profiles[+b.dataset.id]; CUR.sel = CUR.sel === p ? null : p; draw(); renderList(); if (CUR.sel) say(profileMsg(p)); });
+  $('#csv').onclick = () => {
+    const data = CUR.sets.flatMap((s) => s.data), head = 'wmo,time_utc,lat,lon,sst_c,sss_psu,mld_dbar,thermocline_dbar';
+    const rows = data.map((p) => [p.wmo, p.t, p.lat, p.lon, ...(p.f || []).map((x) => (x == null ? '' : x))].join(','));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([[head, ...rows].join('\n')], { type: 'text/csv' })); a.download = 'floatchat_profiles.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  const profileMsg = (p) => `Float <b>${p.wmo}</b>, ${p.t.slice(0, 10)}: surface ${fmt(p.T?.[0])} °C / ${fmt(p.S?.[0])} PSU · thermocline ≈ ${fmt(p.f && p.f[3], 0)} dbar, mixed layer ≈ ${fmt(p.f && p.f[2], 0)} dbar.`;
 
   // ---------- drawing ----------
   const fit = (c, h) => { const d = Math.min(devicePixelRatio || 1, 2), r = c.getBoundingClientRect(); c.width = r.width * d; c.height = (h || r.height) * d; const g = c.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); return { g, w: r.width, h: h || r.height }; };
@@ -258,48 +315,78 @@
     if (best) { el.tip.hidden = false; el.tip.textContent = `${best.wmo} · ${best.t.slice(5, 10)} · ${fmt(best.lat, 1)}°, ${fmt(best.lon, 1)}°`; el.tip.style.left = Math.min(x + 12, r.width - 190) + 'px'; el.tip.style.top = y + 40 + 'px'; } else el.tip.hidden = true;
   });
   el.map.addEventListener('mouseleave', () => (el.tip.hidden = true));
-  el.map.addEventListener('click', () => { const p = el.map._hover; if (!p) return; CUR.sel = CUR.sel === p ? null : p; draw(); if (CUR.sel) say(`Float <b>${p.wmo}</b>, ${p.t.slice(0, 10)}: surface ${fmt(p.T?.[0])} °C / ${fmt(p.S?.[0])} PSU · thermocline ≈ ${fmt(p.f && p.f[3], 0)} dbar, mixed layer ≈ ${fmt(p.f && p.f[2], 0)} dbar.`); });
+  el.map.addEventListener('click', () => { const p = el.map._hover; if (!p) return; CUR.sel = CUR.sel === p ? null : p; draw(); renderList(); if (CUR.sel) say(profileMsg(p)); });
+  // drag a box on the map to ask about that area
+  let BOXON = false, drag = null; const boxEl = $('#box'), boxBtn = $('#boxsel');
+  boxBtn.onclick = () => { BOXON = !BOXON; boxBtn.setAttribute('aria-pressed', BOXON); boxBtn.classList.toggle('on', BOXON); el.map.style.cursor = BOXON ? 'crosshair' : 'default'; };
+  const pos = (e) => { const r = el.map.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  el.map.addEventListener('pointerdown', (e) => { if (!BOXON || !B) return; drag = pos(e); el.map.setPointerCapture(e.pointerId); boxEl.hidden = false; });
+  el.map.addEventListener('pointermove', (e) => { if (!drag) return; const [x, y] = pos(e); Object.assign(boxEl.style, { left: Math.min(x, drag[0]) + 'px', top: Math.min(y, drag[1]) + 40 + 'px', width: Math.abs(x - drag[0]) + 'px', height: Math.abs(y - drag[1]) + 'px' }); });
+  el.map.addEventListener('pointerup', (e) => {
+    if (!drag) return; const [x, y] = pos(e), [x0, y0] = drag; drag = null; boxEl.hidden = true;
+    if (Math.abs(x - x0) < 8 || Math.abs(y - y0) < 8) return;
+    const lon = (px) => +(B.x0 + (px - B.ox) / B.s).toFixed(1), lat = (py) => +(B.y1 - (py - B.oy) / B.s).toFixed(1);
+    const lo = [lon(Math.min(x, x0)), lon(Math.max(x, x0))], la = [lat(Math.max(y, y0)), lat(Math.min(y, y0))];
+    BOXON = false; boxBtn.classList.remove('on'); boxBtn.setAttribute('aria-pressed', 'false'); el.map.style.cursor = 'default';
+    const q = `${fmt(la[0], 0)}–${fmt(la[1], 0)}°, ${fmt(lo[0], 0)}–${fmt(lo[1], 0)}°E`;
+    ask('Summarise the selected area', { f: { lat: la, lon: lo }, label: 'area ' + q });
+  });
   document.querySelectorAll('#seg button').forEach((b) => (b.onclick = () => { VIEW = b.dataset.v; document.querySelectorAll('#seg button').forEach((x) => x.classList.toggle('on', x === b)); drawPlot(); }));
 
   // numeric constraints implied by wording (mirrors floatchat/features.py FACETS): embeddings blur antonyms, so apply them exactly
-  const FACETS = [[/low[- ]salinity|fresh(?!est)|freshwater|river|runoff/, 1, '<', 33.8], [/high[- ]salinity|saline|salty|evaporation/, 1, '>=', 36],
-    [/warm|warm pool|hot/, 0, '>=', 28], [/cold|cool/, 0, '<=', 22], [/shallow mixed|shallow mld/, 2, '<=', 25], [/deep mixed|deep mld/, 2, '>=', 60]];
+  const FACETS = [[/low[- ]salinity|\bfresh(?!est)\b|freshwater|river|runoff/, 1, '<', 33.8], [/high[- ]salinity|\bsaline\b|\bsalty\b|evaporation/, 1, '>=', 36],
+    [/\bwarm\b|warm pool|\bhot\b/, 0, '>=', 28], [/\bcold\b|\bcool\b/, 0, '<=', 22], [/shallow mixed|shallow mld/, 2, '<=', 25], [/deep mixed|deep mld/, 2, '>=', 60]];
   const facetsOf = (t) => FACETS.filter(([rx]) => rx.test(t.toLowerCase())).map(([, i, op, v]) => ({ i, op, v }));
   const passes = (p, fc) => fc.every(({ i, op, v }) => { const x = p.f && p.f[i]; return x != null && (op === '<' ? x < v : op === '<=' ? x <= v : op === '>' ? x > v : x >= v); });
   // ---------- in-browser semantic search (same MiniLM model as the Python backend) ----------
-  let EMB, EXT;
-  async function semantic(text, pool) {
-    if (!EXT) {
+  let EMB, EXT, EXTP;
+  const status = (html) => { const w = $('#model'); if (w) { w.innerHTML = html; w.hidden = !html; } };
+  function loadModel() {                      // starts once; also warmed up as soon as the question box is focused
+    if (EXTP) return EXTP;
+    status('Loading the language model (≈23 MB, cached after the first time)…');
+    EXTP = (async () => {
       const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2');
-      EXT = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-    }
-    if (!EMB) EMB = new Int8Array(await (await fetch('data/emb.bin')).arrayBuffer());
-    const out = await EXT([text], { pooling: 'mean', normalize: true }), q = out.data, D = DATA.dim || 384;
+      EXT = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { progress_callback: (e) => { if (e.status === 'progress' && e.total) status(`Loading the language model… ${Math.round(e.loaded / e.total * 100)}%`); } });
+      status(''); return EXT;
+    })().catch((e) => { EXTP = null; status(''); throw e; });
+    return EXTP;
+  }
+  // offline / CDN-blocked fallback: rank the same natural-language profile summaries by word overlap
+  const STOP = new Set('the a an of in on at to for and or with is are by from near over under about show me what where which profiles profile floats float water waters'.split(' '));
+  const words = (t) => (t.toLowerCase().match(/[a-z]{3,}/g) || []).filter((w) => !STOP.has(w)).map((w) => w.replace(/(ing|ed|es|s)$/, ''));
+  function lexical(text, ids) {
+    const qw = new Set(words(text)); if (!qw.size) return ids.slice(0, 5).map((p) => ({ p, score: 0 }));
+    return ids.map((p) => { const pw = new Set(words(p.s || '')); let h = 0; qw.forEach((w) => pw.has(w) && h++); return { p, score: h / qw.size }; }).sort((a, b) => b.score - a.score).slice(0, 5);
+  }
+  async function semantic(text, pool) {
     const fc = facetsOf(text); let ids = pool && pool.length ? pool : DATA.profiles;
-    ids = ids.filter((p) => passes(p, fc)); if (!ids.length) throw new Error('no profile satisfies: ' + (fc.length ? 'the numeric constraint in your question' : 'the filters'));
-    return ids.map((p) => { let s = 0; const o = p.id * D; for (let i = 0; i < D; i++) s += EMB[o + i] * q[i]; return { p, score: s / 127 }; })
-      .sort((a, b) => b.score - a.score).slice(0, 5);
+    ids = ids.filter((p) => passes(p, fc)); if (!ids.length) throw new Error('no profile satisfies ' + (fc.length ? 'the numeric constraint in your question' : 'the filters'));
+    let ext; try { ext = await loadModel(); } catch (e) { return { hits: lexical(text, ids), mode: 'keyword' }; }
+    if (!EMB) EMB = new Int8Array(await (await fetch('data/emb.bin')).arrayBuffer());
+    const out = await ext([text], { pooling: 'mean', normalize: true }), q = out.data, D = DATA.dim || 384;
+    return { mode: 'semantic', hits: ids.map((p) => { let s = 0; const o = p.id * D; for (let i = 0; i < D; i++) s += EMB[o + i] * q[i]; return { p, score: s / 127 }; }).sort((a, b) => b.score - a.score).slice(0, 5) };
   }
 
   // chat plumbing
   const add = (cls, html) => { const d = document.createElement('div'); d.className = 'msg ' + cls; d.innerHTML = html; el.log.appendChild(d); el.log.scrollTop = el.log.scrollHeight; };
   const say = (h) => add('a', h);
-  const ask = async (text) => {
+  const ask = async (text, over) => {
     text = text.trim(); if (!text) return; add('u', esc(text));
-    const r = answer(text);
+    const r = answer(text, over);
     if (r !== null) return say(r);
-    const P = CUR.P, sp = CUR.pendingSemantic; CUR.pendingSemantic = null;
-    const wait = document.createElement('div'); wait.className = 'msg a'; wait.innerHTML = 'Loading the embedding model (≈23 MB, cached after the first time)…'; el.log.appendChild(wait);
+    const sp = CUR.pendingSemantic; CUR.pendingSemantic = null;
+    const wait = document.createElement('div'); wait.className = 'msg a'; wait.textContent = 'Searching by meaning…'; el.log.appendChild(wait);
     try {
-      const hits = await semantic(text, apply(sp.f));
+      const { hits, mode } = await semantic(text, apply(sp.f));
       wait.remove();
-      CUR.sets = [{ f: sp.f, data: hits.map((h) => h.p) }]; CUR.sel = hits[0].p; draw();
-      el.pills.innerHTML = '<span class="pill">semantic search</span><span class="pill" style="color:var(--mute);border-color:var(--line2);background:none">tool: semantic · MiniLM-L6-v2 · cosine' + (facetsOf(text).length ? ' · hybrid facets' : '') + '</span>';
+      CUR.sets = [{ f: sp.f, data: hits.map((h) => h.p) }]; CUR.sel = hits[0].p; draw(); renderList();
+      el.pills.innerHTML = `<span class="pill">${mode === 'semantic' ? 'semantic search' : 'keyword search'}</span><span class="pill" style="color:var(--mute);border-color:var(--line2);background:none">tool: semantic_search · ${mode === 'semantic' ? 'MiniLM-L6-v2 · cosine' : 'word overlap (model unavailable)'}${facetsOf(text).length ? ' · hybrid facets' : ''}</span>`;
       el.stats.innerHTML = hits.slice(0, 4).map((h) => `<div><b>${fmt(h.score, 2)}</b><span>float ${h.p.wmo} · ${h.p.t.slice(5, 10)}</span></div>`).join('');
-      say(`Closest profiles by meaning to “${esc(text)}”:<br>` + hits.slice(0, 3).map((h, i) => `<small style="display:block;margin-top:8px"><b>${i + 1}.</b> ${esc(h.p.s || '')} <i>(similarity ${fmt(h.score, 2)})</i></small>`).join(''));
-    } catch (e) { wait.remove(); say('Semantic search needs to download the embedding model from a CDN and it failed (' + esc(String(e.message || e)) + '). The other question types work offline.'); }
+      say(`Closest profiles by meaning to “${esc(text)}”:<br>` + hits.slice(0, 3).map((h, i) => `<small style="display:block;margin-top:8px"><b>${i + 1}.</b> ${esc(h.p.s || '')} <i>(${mode === 'semantic' ? 'similarity' : 'overlap'} ${fmt(h.score, 2)})</i></small>`).join('') + (mode === 'keyword' ? '<small>The embedding model could not be downloaded, so this used keyword overlap.</small>' : ''));
+    } catch (e) { wait.remove(); say('Nothing matched: ' + esc(String(e.message || e)) + '.'); }
   };
   $('#ask').addEventListener('submit', (e) => { e.preventDefault(); ask(el.q.value); el.q.value = ''; });
+  el.q.addEventListener('focus', () => { if (!EXTP && !EXT) loadModel().catch(() => {}); }, { once: true });
   $('#sugg').innerHTML = SUGGEST.map((s) => `<button type="button">${s}</button>`).join('');
   $('#sugg').addEventListener('click', (e) => e.target.tagName === 'BUTTON' && ask(e.target.textContent));
   $('#theme').onclick = () => { const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = cur === 'light' ? 'dark' : 'light'; document.documentElement.dataset.theme = n; try { localStorage.setItem('theme', n); } catch (e) {} draw(); };
@@ -307,8 +394,11 @@
 
   Promise.all([fetch('data/profiles.json').then((r) => r.json()), fetch('data/land.json').then((r) => r.json())]).then(([d, l]) => {
     DATA = d; LAND = l;
-    say(`Hi — I'm FloatChat. I can answer questions over <b>${d.profiles.length} real Argo profiles</b> from <b>${new Set(d.profiles.map((p) => p.wmo)).size} floats</b> across the Indian Ocean (January 2020). Try a suggestion below, or ask your own.`);
-    draw();
+    const dts = d.profiles.map((p) => p.t.slice(0, 10)).sort(); RANGE = [dts[0], dts[dts.length - 1]];
+    const period = `${nice(RANGE[0])} – ${nice(RANGE[1])} ${RANGE[1].slice(0, 4)}`;
+    $('#period').textContent = 'Argo · Indian Ocean · ' + period;
+    say(`Hi — I'm FloatChat. I can answer questions over <b>${d.profiles.length} real Argo profiles</b> from <b>${new Set(d.profiles.map((p) => p.wmo)).size} floats</b> across the Indian Ocean (<b>${period}</b>, the most recent month of public data). Try a suggestion below, or ask your own. You can also drag a box on the map (<b>▭ Select area</b>) or say “and what about the Bay of Bengal?” to keep the previous dates.`);
+    draw(); renderList();
     if (location.hash === '#demo') ask(SUGGEST[0]);
   }).catch(() => say('Could not load the dataset. Please refresh.'));
 })();

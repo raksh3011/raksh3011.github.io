@@ -33,7 +33,7 @@
   <div class="mono" style="margin-bottom:14px">Full-stack · Serverless · Real-time</div>
   <h1>ORVMS: from risk at sea to delivery commitments</h1>
   <p class="lede">A multi-tenant platform for shipping companies and the Indian Coast Guard. It connects live and synthetic AIS, modelled maritime zones and graded alerts to voyages, customer shipments and SLAs — and runs on free-tier serverless infrastructure.</p>
-  <div class="cta"><a class="btn primary" href="#demo">Live demo ↓</a><a class="btn" href="https://github.com/raksh3011/MSA" target="_blank" rel="noopener">Source on GitHub</a></div>
+  <div class="cta"><a class="btn primary" href="#demo">Live demo ↓</a><a class="btn" href="app/" target="_blank" rel="noopener">Open full screen</a><a class="btn" href="https://github.com/raksh3011/MSA" target="_blank" rel="noopener">Source on GitHub</a></div>
 </div></section>
 
 <section style="padding-top:0" id="demo"><div class="wrap">
@@ -43,8 +43,8 @@
     <div id="demo-fallback">The hosted demo is being deployed. Meanwhile, the source, docs and a 5-minute walkthrough are in the repository.<br><br><a class="btn" href="https://github.com/raksh3011/MSA#quick-start" target="_blank" rel="noopener">Quick start &amp; walkthrough</a></div>
   </div>
   <div class="card" id="demo-creds" hidden style="margin:18px 0">
-    <h4 style="margin-bottom:6px">Try it — demo accounts</h4>
-    <p style="color:var(--mute);font-size:.9rem;margin:0">Password for all: <code>OrvmsDemo-2026</code> · usernames <code>operator</code> (shipments &amp; voyages), <code>riskofficer</code> + <code>orgadmin</code> (approval workflow — critical voyages need two people), <code>cg.kochi</code> (Coast Guard case desk), <code>admin</code> (platform console). Sandbox data; resets are not guaranteed.</p>
+    <h4 style="margin-bottom:6px">Try it: pick a role</h4>
+    <p style="color:var(--mute);font-size:.9rem;margin:0">One click on the landing page signs you in; the sandbox password for all accounts is <code>OrvmsDemo-2026</code>. Accounts: <code>operator</code> (shipments &amp; voyages), <code>riskofficer</code> + <code>orgadmin</code> (approval workflow — critical voyages need two people), <code>cg.kochi</code> (Coast Guard case desk), <code>admin</code> (platform console). Synthetic data, held in memory in your tab; it resets on reload. The same code runs on Cloudflare Workers in the full deployment.</p>
   </div>
   <p class="note">Vessel traffic near India is partly <strong>synthetic and always labelled</strong>; real feeds come from aisstream.io and Digitraffic. Zones are modelled, not official limits. Payments run in a sandbox.</p>
 </div></section>
@@ -71,6 +71,7 @@
   <ul>
     <li><strong>Real-time path:</strong> feed adapters parse, validate, normalise and throttle AIS from WebSocket and REST sources into a Durable Object hub that holds vessel state, runs the risk engine and raises graded alerts.</li>
     <li><strong>Storage:</strong> Cloudflare D1 for business records; the same business API runs against in-memory <em>and</em> SQL storage in tests.</li>
+    <li><strong>Browser demo:</strong> the page above is the production UI with the server swapped for the same Hono app and risk engine running in the tab (<code>app.fetch()</code> instead of HTTP, an in-memory repository instead of D1). Roles can be switched live, time can be sped up, and a guided tour and architecture view are built in.</li>
     <li><strong>Quality:</strong> 226 unit and API tests, lint, type-check and CI; OpenAPI spec and written requirements, architecture and tech-decision records.</li>
   </ul>
   <div class="grid3">
@@ -82,14 +83,14 @@
 </main>
 <footer><div class="wrap"><span>© 2026 Rakshak M K</span><span>Static site · GitHub Pages</span></div></footer>
 <script>
-// Set once the Worker is deployed (e.g. 'https://orvms.<account>.workers.dev').
-const LIVE_URL = '';
+// Static build of the app (the real API runs in the browser tab); see src/web/local.ts in the source repo.
+const LIVE_URL = 'app/';
 if (LIVE_URL) {
   const f = document.getElementById('demo-frame');
   f.src = LIVE_URL; f.hidden = false;
   document.getElementById('demo-fallback').hidden = true;
   document.getElementById('demo-creds').hidden = false;
-  document.getElementById('demo-url').textContent = LIVE_URL.replace('https://', '');
+  document.getElementById('demo-url').textContent = 'ORVMS · runs entirely in your browser';
 }
 </script>
 </body>

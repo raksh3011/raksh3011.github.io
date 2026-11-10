@@ -16,7 +16,7 @@
   const URLS = {
     floatchat: 'floatchat/?embed=1',
     aurax: local ? 'http://127.0.0.1:5180/' : 'https://raksh3011.github.io/aurax-demo/',
-    orvms: '',                       // set to the deployed Worker URL (https://orvms.<account>.workers.dev)
+    orvms: 'orvms/app/',             // static build: the real API runs in the browser tab (see orvms/ case study)
   };
   const LINKS = { github: 'https://github.com/raksh3011', linkedin: 'https://www.linkedin.com/in/rakshak-m-k/', email: 'rakshak.km.3011@gmail.com' };
 
@@ -111,7 +111,7 @@
     const x = Math.max(8, Math.min(dw - W - 8, 230 + (cascade % 6) * 28)), y = Math.max(8, Math.min(dh - H - 8, 28 + (cascade % 6) * 26)); cascade++;
     const body = el('div', { class: 'body' });
     if (app.url) {
-      body.append(el('iframe', { src: app.url, title: app.title, loading: 'lazy', allow: 'fullscreen; clipboard-write' }));
+      body.append(el('iframe', { src: app.url, title: app.title, allow: 'fullscreen; clipboard-write' }));
     } else body.append(app.build());
     const btns = [];
     if (app.ext) btns.push(el('button', { title: 'Open in a new tab', 'aria-label': 'Open in a new tab', onclick: () => window.open(app.ext, '_blank', 'noopener') }, '↗'));
@@ -230,15 +230,15 @@
   // ---------------------------------------------------------------- wallpaper
   const wall = $('#wall'); let wg, ww, wh, pts = [];
   const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  function wfit() { const d = Math.min(devicePixelRatio || 1, 2), r = deskEl.getBoundingClientRect(); wall.width = r.width * d; wall.height = r.height * d; wg = wall.getContext('2d'); wg.setTransform(d, 0, 0, d, 0, 0); ww = r.width; wh = r.height; pts = Array.from({ length: small() ? 160 : 420 }, () => ({ x: Math.random() * ww, y: Math.random() * wh, a: Math.random() })); wg.fillStyle = css('--desk'); wg.fillRect(0, 0, ww, wh); }
+  function wfit() { const d = Math.min(devicePixelRatio || 1, 2), r = deskEl.getBoundingClientRect(); wall.width = r.width * d; wall.height = r.height * d; wg = wall.getContext('2d'); wg.setTransform(d, 0, 0, d, 0, 0); ww = r.width; wh = r.height; pts = Array.from({ length: small() ? 220 : 700 }, () => ({ x: Math.random() * ww, y: Math.random() * wh, a: Math.random() })); wg.clearRect(0, 0, ww, wh); }
   const ang = (x, y, t) => Math.sin(x * 0.0021 + t * 0.00006) * 1.9 + Math.cos(y * 0.0027 - t * 0.00005) * 1.9;
-  function wframe(t) {
-    wg.globalAlpha = 0.04; wg.fillStyle = css('--desk'); wg.fillRect(0, 0, ww, wh); wg.strokeStyle = css('--accent');
-    for (const p of pts) { const a = ang(p.x, p.y, t), nx = p.x + Math.cos(a) * 0.8, ny = p.y + Math.sin(a) * 0.8; wg.globalAlpha = 0.06 + p.a * 0.14; wg.beginPath(); wg.moveTo(p.x, p.y); wg.lineTo(nx, ny); wg.stroke(); p.x = nx; p.y = ny; if (p.x < 0 || p.x > ww || p.y < 0 || p.y > wh || Math.random() < 0.002) { p.x = Math.random() * ww; p.y = Math.random() * wh; } }
+  function wframe(t, still) {
+    if (!still) { wg.globalCompositeOperation = 'destination-out'; wg.globalAlpha = 0.035; wg.fillStyle = '#000'; wg.fillRect(0, 0, ww, wh); wg.globalCompositeOperation = 'source-over'; } wg.strokeStyle = css('--accent'); wg.lineWidth = 1.3;
+    for (const p of pts) { const a = ang(p.x, p.y, t), nx = p.x + Math.cos(a) * 1.6, ny = p.y + Math.sin(a) * 1.6; wg.globalAlpha = 0.25 + p.a * 0.45; wg.beginPath(); wg.moveTo(p.x, p.y); wg.lineTo(nx, ny); wg.stroke(); p.x = nx; p.y = ny; if (p.x < 0 || p.x > ww || p.y < 0 || p.y > wh || Math.random() < 0.002) { p.x = Math.random() * ww; p.y = Math.random() * wh; } }
     wg.globalAlpha = 1;
   }
   wfit(); addEventListener('resize', wfit);
-  if (reduce) for (let i = 0; i < 300; i++) wframe(i * 16);
+  if (reduce) for (let i = 0; i < 90; i++) wframe(i * 16, true);
   else { const loop = (t) => { if (!document.hidden) wframe(t); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
 
   // ---------------------------------------------------------------- boot + startup
