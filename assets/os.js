@@ -107,6 +107,7 @@
   function open(id) {
     id = id.replace(/^#/, '');
     const app = APPS[id]; if (!app) return;
+    if (window.track) window.track('open', id);
     if (wins.has(id)) { const w = wins.get(id); w.el.classList.remove('min'); focus(id); w.task.classList.remove('m'); return; }
     const dw = deskEl.clientWidth, dh = deskEl.clientHeight;
     const W = Math.min(app.w, dw - 20), H = Math.min(app.h, dh - 20);
