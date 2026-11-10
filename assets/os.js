@@ -260,7 +260,6 @@
     if (started) return; started = true;
     const hash = location.hash.slice(1);
     if (hash && APPS[hash]) open(hash);
-    else open('readme');
   }
   addEventListener('hashchange', () => { const h = location.hash.slice(1); if (APPS[h]) open(h); });
   deskEl.addEventListener('click', onOpenLink);
