@@ -42,7 +42,7 @@
         <li><b>FloatChat</b> — chat with real ocean-float data. <a href="#floatchat" data-open="floatchat">Open live demo</a></li>
       </ul>
       <h3>Right now</h3>
-      <dl class="kv"><dt>role</dt><dd>Software Engineer Intern, ApthaAI (Jun 2026 –)</dd><dt>studying</dt><dd>B.E. CSE, CGPA 8.66 (2023 – 2027)</dd><dt>presented</dt><dd>ICMOTA 2026, IIT BHU</dd><dt>looking for</dt><dd>software engineering roles &amp; internships</dd></dl>
+      <dl class="kv"><dt>role</dt><dd>Software Engineer Intern, ApthaAI (Jun 2026 –)</dd><dt>studying</dt><dd>B.E. CSE, CGPA 8.66 (2023 – 2027)</dd><dt>looking for</dt><dd>software engineering roles &amp; internships</dd></dl>
       <div class="row"><button class="btn pri" data-open="projects">▸ Projects</button><button class="btn" data-open="terminal">▸ Terminal</button><button class="btn" data-open="resume">▸ Resume (by mail)</button><button class="btn" data-open="contact">▸ Contact</button></div>`) },
 
     projects: { title: 'Projects', icon: 'folder', w: 820, h: 520, build: () => el('div', { class: 'cards' }, PROJECTS.map((p) => el('article', { class: 'card' },
@@ -174,7 +174,6 @@
   menu.innerHTML = `<header><b>Rakshak M K</b><span>software engineer</span></header>`;
   [['readme', 'readme', 'readme.txt'], ['folder', 'projects', 'Projects'], ['brief', 'career', 'career.log'], ['chip', 'skills', 'skills.sys'], ['term', 'terminal', 'Terminal'], ['pdf', 'resume', 'Resume'], ['mail', 'contact', 'Contact']]
     .forEach(([ic, id, label]) => menu.append(el('button', { role: 'menuitem', html: icon(ic) + label, onclick: () => { open(id); toggleMenu(false); } })));
-  menu.append(el('hr'), el('a', { href: 'classic.html', role: 'menuitem', html: icon('classic') + 'Classic view' }));
   function toggleMenu(on) { const v = on ?? !menu.classList.contains('open'); menu.classList.toggle('open', v); start.setAttribute('aria-expanded', v); }
   start.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
   addEventListener('pointerdown', (e) => { if (!e.target.closest('#menu, #start')) toggleMenu(false); });
@@ -239,8 +238,8 @@
     wg.globalAlpha = 1;
   }
   wfit(); addEventListener('resize', wfit);
-  if (reduce) for (let i = 0; i < 260; i++) wframe(i * 16, true);
-  else { const loop = (t) => { if (!document.hidden) wframe(t); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+  for (let i = 0; i < 160; i++) wframe(i * 16, true);
+  { const loop = (t) => { if (!document.hidden) wframe(t); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
 
   // ---------------------------------------------------------------- boot + startup
   const boot = () => {
