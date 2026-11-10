@@ -33,7 +33,7 @@
 
   const APPS = {
     readme: { title: 'readme.txt', icon: 'readme', w: 640, h: 540, build: () => doc(`
-      <h1>Hi, I'm Rakshak<em>.</em></h1><p class="sub">Software engineer · B.E. CSE, BMSIT&amp;M, Bengaluru</p>
+      <h1>Hi, I'm Rakshak<em>.</em></h1><p class="sub">Computer Science Engineer · B.E. CSE, BMSIT&amp;M, Bengaluru</p>
       <p>I build <b>AI-driven, data-intensive systems</b> and care about the unglamorous parts that make them dependable: idempotent pipelines, tests, honest evaluation, clear system design.</p>
       <h3>Start here</h3>
       <ul>
@@ -173,7 +173,7 @@
   deskEl.addEventListener('pointerdown', (e) => { if (!e.target.closest('.ico')) iconsEl.querySelectorAll('.ico').forEach((x) => x.classList.remove('sel')); });
 
   const menu = $('#menu'), start = $('#start');
-  menu.innerHTML = `<header><b>Rakshak M K</b><span>software engineer</span></header>`;
+  menu.innerHTML = `<header><b>Rakshak M K</b><span>computer science engineer</span></header>`;
   [['readme', 'readme', 'readme.txt'], ['folder', 'projects', 'Projects'], ['brief', 'career', 'career.log'], ['chip', 'skills', 'skills.sys'], ['term', 'terminal', 'Terminal'], ['pdf', 'resume', 'Resume'], ['mail', 'contact', 'Contact']]
     .forEach(([ic, id, label]) => menu.append(el('button', { role: 'menuitem', html: icon(ic) + label, onclick: () => { open(id); toggleMenu(false); } })));
   function toggleMenu(on) { const v = on ?? !menu.classList.contains('open'); menu.classList.toggle('open', v); start.setAttribute('aria-expanded', v); }
@@ -197,7 +197,7 @@
     const A = (id, label) => `<a href="#${id}" data-open="${id}">${label || id}</a>`;
     const CMD = {
       help: () => 'commands:\n  about        who I am\n  projects     what I have built\n  experience   work and education\n  skills       the toolbox\n  contact      how to reach me\n  open &lt;app&gt;  floatchat | orvms | aurax | resume | projects | career\n  ls           list the desktop\n  theme        toggle dark/paper\n  clear        clear the screen',
-      about: () => "Rakshak M K — software engineer. I build AI-driven, data-intensive systems and care about correctness you can test.\nBMSIT&amp;M CSE (CGPA 8.66) · Software Engineer Intern at ApthaAI · presented at ICMOTA 2026, IIT BHU.",
+      about: () => "Rakshak M K — computer science engineer. I build AI-driven, data-intensive systems and care about correctness you can test.\nBMSIT&amp;M CSE (CGPA 8.66) · Software Engineer Intern at ApthaAI · presented at ICMOTA 2026, IIT BHU.",
       projects: () => `1. ${A('aurax', 'AURAX')}       — GNSS-denied UAV mission stack (flagship; case study with measured results)\n2. ${A('orvms', 'ORVMS')}       — multi-tenant maritime risk platform, runs in your browser (226 tests)\n3. ${A('floatchat', 'FloatChat')}  — ask real Argo ocean data questions in English (PostgreSQL + pgvector, tools, browser demo)`,
       experience: () => 'ApthaAI — Software Engineer Intern (Jun 2026 – present): assurance platform prototype for AI agents in supply-chain workflows.\nB.E. CSE, BMSIT&amp;M (2023–2027), CGPA 8.66.',
       skills: () => 'C · C++ · Python · TypeScript · SQL | RAG · embeddings · agents | PostgreSQL · pgvector · D1 | Three.js · Workers | Git · Docker · CI',
