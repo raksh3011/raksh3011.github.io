@@ -32,15 +32,15 @@
   <div class="mono" style="margin-bottom:14px">C++17 · Three.js · Path planning · Navigation · ICMOTA 2026, IIT BHU</div>
   <h1>AURAX: a UAV that navigates without GPS</h1>
   <p class="lede">A software stack that flies a simulated long-range flying wing over real mountain terrain using only a LiDAR and an IMU — plans a verified terrain-following route, estimates its own position error, adapts the route and margins to that error, and returns to the launch point with no link to the ground.</p>
-  <div class="cta"><a class="btn primary" href="#replay">Watch a recorded flight ↓</a><a class="btn" href="#results">Measured results</a></div>
+  <div class="cta"><a class="btn primary" href="#replay">Request a walkthrough ↓</a><a class="btn" href="#results">Measured results</a></div>
 </div></section>
 
 <section style="padding-top:0" id="replay"><div class="wrap">
-  <div class="frame">
-    <div class="bar"><i></i><i></i><i></i><span>AURAX ground station · 11 recorded simulations over eastern Ladakh and the Kashmir valley</span></div>
-    <iframe id="gcs" title="AURAX ground station replay" loading="lazy" style="height:min(80vh,760px)"></iframe>
+  <div class="card" style="padding:22px">
+    <h4 style="margin-bottom:6px">Interactive replay on request</h4>
+    <p style="color:var(--mute);margin:0 0 14px">The 3-D ground station replays recorded simulator flights over eastern Ladakh and the Kashmir valley (area, corridor and point searches, supply drops, runs through unseen obstacles). The source and the replay build are private, so I share them in a short walkthrough rather than publicly.</p>
+    <a class="btn primary" href="mailto:rakshak.km.3011@gmail.com?subject=AURAX%20walkthrough">Request a walkthrough</a>
   </div>
-  <p class="note">This is the real browser ground station replaying logs produced by the C++ simulator. Planning and simulation run locally in the full version; the hosted demo replays 11 recorded flights (pick one from the REPLAY menu; a short guide opens on entry). Everything is a simulation — no hardware, no real sensor data; sensor models are documented stand-ins.</p>
 </div></section>
 
 <section style="padding-top:0"><div class="wrap"><div class="prose">
@@ -103,9 +103,6 @@
 <section class="contact" style="padding-top:10px"><div class="wrap"><div class="cta"><a class="btn" href="../">← Back to portfolio</a><a class="btn primary" href="mailto:rakshak.km.3011@gmail.com">Discuss this work</a></div></div></section>
 </main>
 <footer><div class="wrap"><span>© 2026 Rakshak M K</span><span>Static site · GitHub Pages</span></div></footer>
-<script>
-const AURAX = ['localhost','127.0.0.1'].includes(location.hostname) ? 'http://127.0.0.1:5180/' : 'https://raksh3011.github.io/aurax-demo/';
-const f = document.getElementById('gcs'); new IntersectionObserver(([e], o) => { if (e.isIntersecting) { f.src = AURAX; o.disconnect(); } }, { rootMargin: '300px' }).observe(f);
-</script>
+
 </body>
 </html>

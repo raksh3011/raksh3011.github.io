@@ -15,7 +15,7 @@
   // ---- where the live demos run. Edit here when a deployment moves. ----
   const URLS = {
     floatchat: 'floatchat/?embed=1',
-    aurax: local ? 'http://127.0.0.1:5180/' : 'https://raksh3011.github.io/aurax-demo/',
+    aurax: '',
     orvms: 'orvms/app/',             // static build: the real API runs in the browser tab (see orvms/ case study)
   };
   const LINKS = { github: 'https://github.com/raksh3011', linkedin: 'https://www.linkedin.com/in/rakshak-m-k/', email: 'rakshak.km.3011@gmail.com' };
@@ -23,12 +23,12 @@
   // ---------------------------------------------------------------- content
   const doc = (html) => el('div', { class: 'doc', html });
   const PROJECTS = [
-    { id: 'floatchat', icon: 'wave', name: 'FloatChat', blurb: 'Ask real Argo ocean-float data questions in plain English. Schema-agnostic NetCDF ingestion, PostgreSQL + pgvector semantic search, a tool-using agent — and a demo that runs entirely in your browser.',
-      tags: ['Python', 'PostgreSQL', 'pgvector', 'RAG', 'NetCDF'], live: true, repo: 'https://github.com/raksh3011/FloatChat' },
+    { id: 'aurax', icon: 'uav', name: 'AURAX', blurb: 'GNSS-denied UAV mission stack (simulation): terrain-following 3-D planning, localisation-aware routing, LiDAR+IMU navigation, and a 3-D ground station. Flagship project; case study with measured results.',
+      tags: ['C++17', 'Three.js', 'Path planning', 'Navigation'], featured: true, live: false, case: 'aura-x/?embed=1' },
     { id: 'orvms', icon: 'ship', name: 'ORVMS', blurb: 'Multi-tenant maritime risk and supply-chain platform: live AIS, voyage approvals, SLA-driven Coast Guard case desk, billing, signed webhooks. Serverless on Cloudflare; 226 automated tests.',
       tags: ['TypeScript', 'Cloudflare Workers', 'D1', 'Durable Objects'], live: !!URLS.orvms, repo: 'https://github.com/raksh3011/MSA', case: 'orvms/?embed=1' },
-    { id: 'aurax', icon: 'uav', name: 'AURAX', blurb: 'GNSS-denied UAV mission stack (simulation): terrain-following 3-D planning, localisation-aware routing, LiDAR+IMU navigation, and a 3-D ground station. Replay real recorded flights in the browser.',
-      tags: ['C++17', 'Three.js', 'Path planning', 'Navigation'], live: true, case: 'aura-x/?embed=1' },
+    { id: 'floatchat', icon: 'wave', name: 'FloatChat', blurb: 'Ask real Argo ocean-float data questions in plain English. Schema-agnostic NetCDF ingestion, PostgreSQL + pgvector semantic search, a tool-using agent — and a demo that runs entirely in your browser.',
+      tags: ['Python', 'PostgreSQL', 'pgvector', 'RAG', 'NetCDF'], live: true, repo: 'https://github.com/raksh3011/FloatChat' },
   ];
 
   const APPS = {
@@ -37,20 +37,20 @@
       <p>I build <b>AI-driven, data-intensive systems</b> and care about the unglamorous parts that make them dependable: idempotent pipelines, tests, honest evaluation, clear system design.</p>
       <h3>Start here</h3>
       <ul>
+        <li><b>AURAX</b> — flagship: UAV mission stack for GPS-denied terrain. <a href="#aurax" data-open="aurax">Case study</a></li>
+        <li><b>ORVMS</b> — maritime risk platform, runs in your browser. <a href="#orvms" data-open="orvms">Open live demo</a></li>
         <li><b>FloatChat</b> — chat with real ocean-float data. <a href="#floatchat" data-open="floatchat">Open live demo</a></li>
-        <li><b>ORVMS</b> — maritime risk platform. <a href="#orvms" data-open="orvms">Open</a></li>
-        <li><b>AURAX</b> — UAV stack for GPS-denied terrain. <a href="#aurax" data-open="aurax">Open 3-D replay</a></li>
       </ul>
       <h3>Right now</h3>
       <dl class="kv"><dt>role</dt><dd>Software Engineer Intern, ApthaAI (Jun 2026 –)</dd><dt>studying</dt><dd>B.E. CSE, CGPA 8.66 (2023 – 2027)</dd><dt>presented</dt><dd>ICMOTA 2026, IIT BHU</dd><dt>looking for</dt><dd>software engineering roles &amp; internships</dd></dl>
-      <div class="row"><button class="btn pri" data-open="projects">▸ Projects</button><button class="btn" data-open="terminal">▸ Terminal</button><button class="btn" data-open="resume">▸ Resume.pdf</button><button class="btn" data-open="contact">▸ Contact</button></div>`) },
+      <div class="row"><button class="btn pri" data-open="projects">▸ Projects</button><button class="btn" data-open="terminal">▸ Terminal</button><button class="btn" data-open="resume">▸ Resume (by mail)</button><button class="btn" data-open="contact">▸ Contact</button></div>`) },
 
     projects: { title: 'Projects', icon: 'folder', w: 820, h: 520, build: () => el('div', { class: 'cards' }, PROJECTS.map((p) => el('article', { class: 'card' },
-      el('div', { class: 'live', style: p.live ? '' : 'color:var(--accent2)' }, p.live ? 'live demo' : 'deploying'),
+      el('div', { class: 'live', style: p.featured ? 'color:var(--accent2)' : '' }, p.featured ? '★ flagship · case study' : p.live ? 'live demo' : 'case study'),
       el('h4', {}, p.name), el('p', {}, p.blurb), el('div', { class: 'tags' }, p.tags.map((t) => el('span', {}, t))),
       el('div', { class: 'row' },
-        el('button', { class: 'btn pri', 'data-open': p.id }, '▸ Open'),
-        p.case ? el('button', { class: 'btn', 'data-open': p.id + '-case' }, 'Case study') : null,
+        el('button', { class: 'btn pri', 'data-open': p.id }, p.featured ? '▸ Case study' : '▸ Open demo'),
+        p.case && !p.featured ? el('button', { class: 'btn', 'data-open': p.id + '-case' }, 'Case study') : null,
         p.repo ? el('a', { class: 'btn', href: p.repo, target: '_blank', rel: 'noopener' }, 'Source ↗') : null)))) },
 
     career: { title: 'career.log', icon: 'brief', w: 640, h: 560, build: () => doc(`
@@ -77,13 +77,14 @@
     contact: { title: 'contact.mail', icon: 'mail', w: 520, h: 380, build: () => doc(`
       <h1>Let's <em>talk</em></h1><p>Open to software engineering roles and internships. Email is fastest.</p>
       <div class="row"><a class="btn pri" href="mailto:${LINKS.email}">✉ ${LINKS.email}</a></div>
-      <div class="row"><a class="btn" href="${LINKS.linkedin}" target="_blank" rel="noopener">LinkedIn ↗</a><a class="btn" href="${LINKS.github}" target="_blank" rel="noopener">GitHub ↗</a><a class="btn" href="assets/Rakshak_M_K_Resume.pdf" download>Download résumé</a></div>`) },
+      <div class="row"><a class="btn" href="${LINKS.linkedin}" target="_blank" rel="noopener">LinkedIn ↗</a><a class="btn" href="${LINKS.github}" target="_blank" rel="noopener">GitHub ↗</a><a class="btn" href="mailto:${LINKS.email}?subject=R%C3%A9sum%C3%A9%20request">Request résumé</a></div>`) },
 
-    resume: { title: 'Rakshak_M_K_Resume.pdf', icon: 'pdf', w: 760, h: 640, ext: 'assets/Rakshak_M_K_Resume.pdf', build: () => el('div', { style: 'position:absolute;inset:0;display:flex;flex-direction:column' },
-      el('div', { class: 'row', style: 'margin:0;padding:8px 10px;border-bottom:1px solid var(--line)' }, el('a', { class: 'btn pri', href: 'assets/Rakshak_M_K_Resume.pdf', download: '' }, '⇩ Download PDF'), el('a', { class: 'btn', href: 'assets/Rakshak_M_K_Resume.pdf', target: '_blank', rel: 'noopener' }, 'Open in tab ↗')),
-      el('iframe', { src: 'assets/Rakshak_M_K_Resume.pdf', title: 'Résumé (PDF)', style: 'position:static;flex:1;width:100%;border:0;background:#222' })) },
+    resume: { title: 'resume.txt', icon: 'pdf', w: 520, h: 330, build: () => doc(`
+      <h1>Résumé</h1><p>Happy to share my current résumé directly. Send me a short email and I will reply with it, along with anything specific you would like to see.</p>
+      <div class="row"><a class="btn pri" href="mailto:${LINKS.email}?subject=R%C3%A9sum%C3%A9%20request&body=Hi%20Rakshak%2C%20could%20you%20please%20share%20your%20r%C3%A9sum%C3%A9%3F">✉ Request résumé by mail</a></div>
+      <p style="color:var(--mute);margin-top:14px">${LINKS.email}</p>`) },
     floatchat: { title: 'FloatChat.app', icon: 'wave', w: 1080, h: 660, url: URLS.floatchat, ext: 'floatchat/' },
-    aurax: { title: 'AURAX.app — ground station (replay)', icon: 'uav', w: 1100, h: 680, url: URLS.aurax, ext: URLS.aurax },
+    aurax: { title: 'AURAX — case study', icon: 'uav', w: 960, h: 700, url: 'aura-x/?embed=1', ext: 'aura-x/' },
     orvms: { title: 'ORVMS.app', icon: 'ship', w: 1080, h: 660, url: URLS.orvms || 'orvms/?embed=1', ext: URLS.orvms || 'orvms/' },
     'aurax-case': { title: 'AURAX — case study', icon: 'uav', w: 900, h: 680, url: 'aura-x/?embed=1', ext: 'aura-x/' },
     'orvms-case': { title: 'ORVMS — case study', icon: 'ship', w: 900, h: 680, url: 'orvms/?embed=1', ext: 'orvms/' },
@@ -91,7 +92,7 @@
     terminal: { title: 'terminal', icon: 'term', w: 700, h: 460, build: () => buildTerminal() },
   };
   // desktop icon order
-  const ICONS = [['readme', 'readme.txt'], ['projects', 'Projects'], ['floatchat', 'FloatChat'], ['orvms', 'ORVMS'], ['aurax', 'AURAX'], ['career', 'career.log'], ['skills', 'skills.sys'], ['resume', 'Resume.pdf'], ['terminal', 'Terminal'], ['contact', 'contact.mail']];
+  const ICONS = [['readme', 'readme.txt'], ['projects', 'Projects'], ['aurax', 'AURAX'], ['orvms', 'ORVMS'], ['floatchat', 'FloatChat'], ['career', 'career.log'], ['skills', 'skills.sys'], ['resume', 'Resume'], ['terminal', 'Terminal'], ['contact', 'contact.mail']];
 
   // ---------------------------------------------------------------- window manager
   const wins = new Map();
@@ -170,8 +171,8 @@
   deskEl.addEventListener('pointerdown', (e) => { if (!e.target.closest('.ico')) iconsEl.querySelectorAll('.ico').forEach((x) => x.classList.remove('sel')); });
 
   const menu = $('#menu'), start = $('#start');
-  menu.innerHTML = `<header><b>Rakshak M K</b><span>RakshakOS 1.0 · software engineer</span></header>`;
-  [['readme', 'readme', 'readme.txt'], ['folder', 'projects', 'Projects'], ['brief', 'career', 'career.log'], ['chip', 'skills', 'skills.sys'], ['term', 'terminal', 'Terminal'], ['pdf', 'resume', 'Resume.pdf'], ['mail', 'contact', 'Contact']]
+  menu.innerHTML = `<header><b>Rakshak M K</b><span>software engineer</span></header>`;
+  [['readme', 'readme', 'readme.txt'], ['folder', 'projects', 'Projects'], ['brief', 'career', 'career.log'], ['chip', 'skills', 'skills.sys'], ['term', 'terminal', 'Terminal'], ['pdf', 'resume', 'Resume'], ['mail', 'contact', 'Contact']]
     .forEach(([ic, id, label]) => menu.append(el('button', { role: 'menuitem', html: icon(ic) + label, onclick: () => { open(id); toggleMenu(false); } })));
   menu.append(el('hr'), el('a', { href: 'classic.html', role: 'menuitem', html: icon('classic') + 'Classic view' }));
   function toggleMenu(on) { const v = on ?? !menu.classList.contains('open'); menu.classList.toggle('open', v); start.setAttribute('aria-expanded', v); }
@@ -196,7 +197,7 @@
     const CMD = {
       help: () => 'commands:\n  about        who I am\n  projects     what I have built\n  experience   work and education\n  skills       the toolbox\n  contact      how to reach me\n  open &lt;app&gt;  floatchat | orvms | aurax | resume | projects | career\n  ls           list the desktop\n  theme        toggle dark/paper\n  clear        clear the screen',
       about: () => "Rakshak M K — software engineer. I build AI-driven, data-intensive systems and care about correctness you can test.\nBMSIT&amp;M CSE (CGPA 8.66) · Software Engineer Intern at ApthaAI · presented at ICMOTA 2026, IIT BHU.",
-      projects: () => `1. ${A('floatchat', 'FloatChat')}  — ask real Argo ocean data questions in English (PostgreSQL + pgvector, tools, browser demo)\n2. ${A('orvms', 'ORVMS')}       — multi-tenant maritime risk platform on Cloudflare (226 tests)\n3. ${A('aurax', 'AURAX')}       — GNSS-denied UAV mission stack with a 3-D replay ground station`,
+      projects: () => `1. ${A('aurax', 'AURAX')}       — GNSS-denied UAV mission stack (flagship; case study with measured results)\n2. ${A('orvms', 'ORVMS')}       — multi-tenant maritime risk platform, runs in your browser (226 tests)\n3. ${A('floatchat', 'FloatChat')}  — ask real Argo ocean data questions in English (PostgreSQL + pgvector, tools, browser demo)`,
       experience: () => 'ApthaAI — Software Engineer Intern (Jun 2026 – present): assurance platform prototype for AI agents in supply-chain workflows.\nB.E. CSE, BMSIT&amp;M (2023–2027), CGPA 8.66.',
       skills: () => 'C · C++ · Python · TypeScript · SQL | RAG · embeddings · agents | PostgreSQL · pgvector · D1 | Three.js · Workers | Git · Docker · CI',
       contact: () => `email     <a href="mailto:${LINKS.email}">${LINKS.email}</a>\nlinkedin  <a href="${LINKS.linkedin}" target="_blank" rel="noopener">rakshak-m-k</a>\ngithub    <a href="${LINKS.github}" target="_blank" rel="noopener">raksh3011</a>`,
@@ -221,7 +222,7 @@
       else if (e.key === 'ArrowUp') { hi = Math.max(0, hi - 1); input.value = hist[hi] || ''; e.preventDefault(); }
       else if (e.key === 'ArrowDown') { hi = Math.min(hist.length, hi + 1); input.value = hist[hi] || ''; e.preventDefault(); }
     });
-    print('<span class="d">RakshakOS terminal — type <b>help</b></span>');
+    print('<span class="d">terminal — type <b>help</b></span>');
     t.addEventListener('click', onOpenLink);
     setTimeout(() => input.focus(), 50);
     return t;
@@ -234,11 +235,11 @@
   const ang = (x, y, t) => Math.sin(x * 0.0021 + t * 0.00006) * 1.9 + Math.cos(y * 0.0027 - t * 0.00005) * 1.9;
   function wframe(t, still) {
     if (!still) { wg.globalCompositeOperation = 'destination-out'; wg.globalAlpha = 0.035; wg.fillStyle = '#000'; wg.fillRect(0, 0, ww, wh); wg.globalCompositeOperation = 'source-over'; } wg.strokeStyle = css('--accent'); wg.lineWidth = 1.3;
-    for (const p of pts) { const a = ang(p.x, p.y, t), nx = p.x + Math.cos(a) * 1.6, ny = p.y + Math.sin(a) * 1.6; wg.globalAlpha = 0.25 + p.a * 0.45; wg.beginPath(); wg.moveTo(p.x, p.y); wg.lineTo(nx, ny); wg.stroke(); p.x = nx; p.y = ny; if (p.x < 0 || p.x > ww || p.y < 0 || p.y > wh || Math.random() < 0.002) { p.x = Math.random() * ww; p.y = Math.random() * wh; } }
+    for (const p of pts) { const a = ang(p.x, p.y, t), nx = p.x + Math.cos(a) * (still ? 2.4 : 1.6), ny = p.y + Math.sin(a) * (still ? 2.4 : 1.6); wg.globalAlpha = 0.25 + p.a * 0.45; wg.beginPath(); wg.moveTo(p.x, p.y); wg.lineTo(nx, ny); wg.stroke(); p.x = nx; p.y = ny; if (p.x < 0 || p.x > ww || p.y < 0 || p.y > wh || Math.random() < 0.002) { p.x = Math.random() * ww; p.y = Math.random() * wh; } }
     wg.globalAlpha = 1;
   }
   wfit(); addEventListener('resize', wfit);
-  if (reduce) for (let i = 0; i < 90; i++) wframe(i * 16, true);
+  if (reduce) for (let i = 0; i < 260; i++) wframe(i * 16, true);
   else { const loop = (t) => { if (!document.hidden) wframe(t); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
 
   // ---------------------------------------------------------------- boot + startup
@@ -246,7 +247,7 @@
     const first = !sessionStorage.getItem('booted');
     try { sessionStorage.setItem('booted', '1'); } catch (e) {}
     if (!first || reduce) return startup();
-    const b = el('div', { id: 'boot', role: 'status' }, el('b', {}, 'RakshakOS'));
+    const b = el('div', { id: 'boot', role: 'status' }, el('b', {}, 'Rakshak M K'));
     document.body.append(b);
     const lines = ['mounting /projects ............ <span class="ok">ok</span>', 'loading floatchat, orvms, aurax ... <span class="ok">ok</span>', 'starting desktop ............... <span class="ok">ok</span>'];
     lines.forEach((l, i) => setTimeout(() => b.append(el('div', { html: l })), 250 + i * 260));
