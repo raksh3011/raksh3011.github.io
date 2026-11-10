@@ -58,7 +58,8 @@
       <h3>Experience</h3><div class="tl"><div><h4>Software Engineer Intern — ApthaAI</h4><small>Jun 2026 – present</small>
         <p>Contributed to the prototype of an Assurance Platform for AI agents in supply-chain workflows; translated assurance requirements into software components and engineering decisions.</p></div></div>
       <h3>Education</h3><div class="tl"><div><h4>B.E. Computer Science &amp; Engineering — BMSIT&amp;M</h4><small>2023 – 2027 · CGPA 8.66</small></div>
-        <div><h4>Pre-University (PCMC) — Smt. Vidya P Hanchinmani PU College</h4><small>2021 – 2023 · 90.83%</small></div></div>
+        <div><h4>Pre-University (PCMC) — Smt. Vidya P Hanchinmani PU College</h4><small>2021 – 2023 · 90.83%</small></div>
+        <div><h4>Secondary School (SSLC) — MDR School, Jakkanakatti</h4><small>2021 · 98.08%</small></div></div>
       <h3>Achievements</h3><ul>
         <li><b>ICMOTA 2026, IIT BHU</b> — presented research on robust trajectory optimisation for a flying-wing UAV in GPS-denied environments.</li>
         <li><b>2nd Prize</b>, InCSEption hackathon (team leader).</li>
